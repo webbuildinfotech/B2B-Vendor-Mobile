@@ -3,7 +3,7 @@ import axios from 'axios';
 // import { API_URL_SECONDARY } from '@env';
 
 // Use your local IP address or your actual server URL
-const baseURL = 'http://192.168.1.112:3000'; // Adjust based on your network
+const baseURL = 'http://44.223.14.188/'; // Adjust based on your network
 // const baseURL = 'https://techno-ebon.vercel.app'; // Adjust based on your network
 // const baseURL = API_URL_SECONDARY; // Adjust based on your network
 // const baseURL = 'http://localhost:3000'; // Adjust based on your network
