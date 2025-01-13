@@ -73,11 +73,11 @@ const VendorConfirmationScreen = () => {
             } else if (Array.isArray(data)) {
                 setAddress(data);
             } else {
-                console.error("Fetched data is not an array:", data);
+                console.log("Fetched data is not an array:", data);
                 setAddress([]); // Reset to empty array if not valid
             }
         } catch (err) {
-            console.error("Error fetching addresses:", err);
+            console.log("Error fetching addresses:", err);
         }
     };
 
@@ -105,7 +105,7 @@ const VendorConfirmationScreen = () => {
             dispatch(cleanCart());
             navigation.navigate("Order");
         } catch (error) {
-            console.error('Error placing order:', error);
+            console.log('Error placing order:', error);
         }
     };
 

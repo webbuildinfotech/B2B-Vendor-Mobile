@@ -1,19 +1,18 @@
-import { Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator, StyleSheet, Keyboard } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from './AuthCss';
 import { setUser } from '../../../redux/authReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-native-toast-message';
-import { authLogin } from '../../BackendApis/authApi'; // Import the authVerify function
+import { authLogin } from '../../BackendApis/authApi';
 import { useAuth } from '../../components/AuthToken/AuthContext';
 
 const OTPVerification = ({ route, navigation }) => {
     const { updateToken } = useAuth();
     const { email } = route.params;
-    const [otp, setOtp] = useState('');
+    const [otp, setOtp] = useState(['', '', '', '', '', '']); 
     const [loading, setLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
     const [timer, setTimer] = useState(30);
@@ -32,8 +31,16 @@ const OTPVerification = ({ route, navigation }) => {
         }
     }, [timer]);
 
+    // Utility function to mask email
+    const maskEmail = (email) => {
+        const [localPart, domainPart] = email.split('@');
+        const maskedLocalPart = localPart.slice(0, 3) + '*'.repeat(localPart.length - 3);
+        return `${maskedLocalPart}@${domainPart}`;
+    };
+
     const handleVerifyOTP = async () => {
-        if (!otp) {
+        const ValidOtp = otp.join('');
+        if (ValidOtp.length < 6) {
             Toast.show({
                 type: 'error',
                 text1: 'Input Error',
@@ -41,19 +48,19 @@ const OTPVerification = ({ route, navigation }) => {
             });
             return;
         }
-    
+        Keyboard.dismiss();
+        
         setLoading(true);
         const contact = email;
         try {
-            const response = await authLogin(contact, otp); // Call the authVerify function
-    
-            const { token, user } = response; // Get token and user from response
-    
-            // Store the token and user data in AsyncStorage
+            const response = await authLogin(contact, ValidOtp);
+
+            const { token, user } = response;
+
             await AsyncStorage.setItem("authToken", token);
-            await AsyncStorage.setItem("userId", user.id); // Use user.id instead of user_id
+            await AsyncStorage.setItem("userId", user.id);
             await AsyncStorage.setItem("userData", JSON.stringify(user));
-            dispatch(setUser(user)); // Dispatch user data to Redux
+            dispatch(setUser(user));
             updateToken(token);
             Toast.show({
                 type: 'success',
@@ -61,11 +68,12 @@ const OTPVerification = ({ route, navigation }) => {
                 text2: 'Your OTP has been verified successfully.',
             });
 
-            // navigation.navigate('Home');
-            navigation.navigate('Main', { screen: 'Home' });
+            navigation.navigate('MainTabs', {
+                screen: 'Home',
+            });
 
         } catch (error) {
-            console.error(error);
+            console.log(error);
             Toast.show({
                 type: 'error',
                 text1: 'Verification Error',
@@ -75,81 +83,120 @@ const OTPVerification = ({ route, navigation }) => {
             setLoading(false);
         }
     };
-    
 
-    // const handleResendOTP = async () => {
-    //     setResendLoading(true); 
-    //     setResendDisabled(true); 
+    const handleChange = (value, index) => {
+        if (value.length <= 1) {
+            const updatedOtp = [...otp];
+            updatedOtp[index] = value;
+            setOtp(updatedOtp);
 
-    //     try {
-    //         const response = await axios.post("http://192.168.1.112:8181/resend-otp", { email });
-    //         console.log(response);
-    //         Toast.show({
-    //             type: 'success',
-    //             text1: 'OTP Resent',
-    //             text2: 'A new OTP has been sent to your email.',
-    //         });
-    //         setTimer(30); 
-    //     } catch (error) {
-    //         console.error(error);
-    //         Toast.show({
-    //             type: 'error',
-    //             text1: 'Resend Error',
-    //             text2: 'An error occurred while resending the OTP.',
-    //         });
-    //     } finally {
-    //         setResendLoading(false); 
-    //         setResendDisabled(false); 
-    //     }
-    // };
+            if (value !== '' && index < otp.length - 1) {
+                inputs[index + 1].focus();
+            }
+        }
+    };
+
+    const handleKeyPress = (event, index) => {
+        if (event.nativeEvent.key === 'Backspace' && otp[index] === '') {
+            if (index > 0) {
+                inputs[index - 1].focus();
+                const updatedOtp = [...otp];
+                updatedOtp[index - 1] = '';
+                setOtp(updatedOtp);
+            }
+        }
+    };
+
+    const inputs = [];
 
     return (
         <View style={styles.container}>
-            <Text style={styles.logo}>OTP Verification</Text>
+            <Text style={styles.title}>OTP Verification</Text>
+            <Text style={styles.subtitle}>Enter the 6-digit code sent to {maskEmail(email)}</Text>
 
-            <View style={styles.inputContainer}>
-                <FontAwesome5 name="lock" size={24} color="black" style={styles.inputIcon} />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter OTP"
-                    keyboardType="number-pad"
-                    value={otp}
-                    onChangeText={setOtp}
-                />
+            <View style={styles.otpContainer}>
+                {otp.map((value, index) => (
+                    <TextInput
+                        key={index}
+                        ref={(ref) => (inputs[index] = ref)}
+                        style={styles.otpBox}
+                        keyboardType="number-pad"
+                        maxLength={1}
+                        value={value}
+                        onChangeText={(text) => handleChange(text, index)}
+                        onKeyPress={(event) => handleKeyPress(event, index)}
+                    />
+                ))}
             </View>
 
-            {resendLoading ? (
-                <Text>Sending you new OTP on Email.</Text>
-            ) : (
-                <TouchableOpacity style={[styles.button, loading && { opacity: 0.6 }]} onPress={handleVerifyOTP} disabled={loading || resendLoading}>
-                    {loading ? (
-                        <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                        <Text style={styles.buttonText}>Verify OTP</Text>
-                    )}
-                </TouchableOpacity>
-            )}
-
-            <Text style={{ marginVertical: 10 }}>
-                {timer > 0 ? `Resend OTP in ${timer} seconds` : ""}
-            </Text>
-            {/*
-    {timer === 0 && (
-        <Text
-            style={[ { marginTop: 10 }]}
-            onPress={handleResendOTP}
-            disabled={loading || resendLoading}
-        >
-            {resendLoading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-                <Text style={styles.ResendButtonText}>Resend OTP</Text>
-            )}
-        </Text>
-    )}
-     */}
+            <TouchableOpacity style={styles.verifyButton} onPress={handleVerifyOTP} disabled={loading}>
+                {loading ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                    <Text style={styles.verifyButtonText}>Verify OTP</Text>
+                )}
+            </TouchableOpacity>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        backgroundColor: '#F9F9F9',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: '#333',
+    },
+    subtitle: {
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 30,
+    },
+    otpBox: {
+        width: 50,
+        height: 50,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        textAlign: 'center',
+        fontSize: 18,
+        backgroundColor: '#fff',
+    },
+    verifyButton: {
+        backgroundColor: "#fe0002",
+        padding: 15,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginBottom: 10,
+        width: '100%',
+    },
+    verifyButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    resendButton: {
+        marginTop: 20,
+    },
+    resendText: {
+        color: '#007BFF',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+});
 
 export default OTPVerification;

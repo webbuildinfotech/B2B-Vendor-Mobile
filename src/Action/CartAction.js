@@ -14,7 +14,7 @@ export const fetchCartItemsApi = async () => {
     const cartItems = await fetchCart(); // Call API to fetch cart
     return cartItems; // Return fetched cart items
   } catch (error) {
-    console.error('Failed to fetch cart items:', error);
+    console.log('Failed to fetch cart items:', error);
     throw error; // Re-throw the error for further handling
   }
 };
@@ -24,7 +24,7 @@ export const addItemToCartApi = async (productId, quantity) => {
   try {
     await addCart(productId, quantity); // Call API to add item
   } catch (error) {
-    console.error('Failed to add item to cart:', error);
+    console.log('Failed to add item to cart:', error);
     throw error; // Re-throw the error for further handling
   }
 };
@@ -34,7 +34,7 @@ export const increaseCartItemQuantityApi = async (id) => {
   try {
     await increaseQuantity(id); // Call API to increase quantity
   } catch (error) {
-    console.error('Failed to increase item quantity:', error);
+    console.log('Failed to increase item quantity:', error);
     throw error; // Re-throw the error for further handling
   }
 };
@@ -44,7 +44,7 @@ export const decreaseCartItemQuantityApi = async (id) => {
   try {
     await decreaseQuantity(id); // Call API to decrease quantity
   } catch (error) {
-    console.error('Failed to decrease item quantity:', error);
+    console.log('Failed to decrease item quantity:', error);
     throw error; // Re-throw the error for further handling
   }
 };
@@ -54,7 +54,7 @@ export const deleteItemFromCartApi = async (id) => {
   try {
     await deleteCartItem(id); // Call API to delete item
   } catch (error) {
-    console.error('Failed to delete item from cart:', error);
+    console.log('Failed to delete item from cart:', error);
     throw error; // Re-throw the error for further handling
   }
 };

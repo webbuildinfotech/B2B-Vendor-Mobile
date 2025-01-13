@@ -58,7 +58,7 @@ const VendorCartScreen = () => {
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      console.error('Failed to fetch Cart Data:', err);
+      console.log('Failed to fetch Cart Data:', err);
     }
   };
 
@@ -80,7 +80,7 @@ const VendorCartScreen = () => {
         )
       );
     } catch (error) {
-      console.error('Error increasing quantity:', error);
+      console.log('Error increasing quantity:', error);
     }
   };
 
@@ -96,7 +96,7 @@ const VendorCartScreen = () => {
         )
       );
     } catch (error) {
-      console.error('Error decreasing quantity:', error);
+      console.log('Error decreasing quantity:', error);
     }
   };
 
@@ -109,7 +109,7 @@ const VendorCartScreen = () => {
 
       setCart((prevCart) => prevCart.filter((item) => item.id !== id));
     } catch (error) {
-      console.error('Error deleting item:', error);
+      console.log('Error deleting item:', error);
     }
   };
 

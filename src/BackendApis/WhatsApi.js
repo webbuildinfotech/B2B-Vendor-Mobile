@@ -24,6 +24,6 @@ export const sendWhatsAppMessage = async (message) => {
 
         // console.log('Message sent successfully:', response.data);
     } catch (error) {
-        console.error('Error sending WhatsApp message:', error.response?.data || error.message);
+        console.log('Error sending WhatsApp message:', error.response?.data || error.message);
     }
 };

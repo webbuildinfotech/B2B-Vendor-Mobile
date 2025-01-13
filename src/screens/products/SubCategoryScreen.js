@@ -1,57 +1,69 @@
-import { Text, View, Image, TouchableOpacity, ScrollView, Pressable, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Pressable,
+  TextInput,
+  RefreshControl,
+} from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import styles from '../../assets/cssFile';
-import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-// import Feather from '@expo/vector-icons/Feather';
-import { Feather } from '@expo/vector-icons';
-import { fetchItems } from '../../BackendApis/itemsApi';
-import { Dropdown } from 'react-native-element-dropdown';
-import { formatNumber } from '../../utils';
-import { useSelector, useDispatch } from 'react-redux';
-import LoadingComponent from '../../components/Loading/LoadingComponent';
-import ErrorComponent from '../../components/Error/ErrorComponent';
-import LogoComponent from '../../components/Logo/LogoComponent';
-import { useAuth } from '../../components/AuthToken/AuthContext';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import styles from "../../assets/cssFile";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import Feather from "@expo/vector-icons/Feather";
+import { fetchItems } from "../../BackendApis/itemsApi";
+import { Dropdown } from "react-native-element-dropdown";
+import { formatNumber } from "../../utils";
+import LoadingComponent from "../../components/Loading/LoadingComponent";
+import ErrorComponent from "../../components/Error/ErrorComponent";
+import LogoComponent from "../../components/Logo/LogoComponent";
+import { useAuth } from "../../components/AuthToken/AuthContext";
 
 const PRODUCT_SORT_OPTIONS = [
-  { value: 'AtoZ', label: 'A to Z' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High - Low' },
-  { value: 'priceAsc', label: 'Price: Low - High' },
+  { value: "AtoZ", label: "A to Z" },
+  { value: "newest", label: "Newest" },
+  { value: "priceDesc", label: "Price: High - Low" },
+  { value: "priceAsc", label: "Price: Low - High" },
 ];
 
-const ShopScreen = () => {
-  const route = useRoute();
-  const searchQueryData = route.params?.searchQueryData || "";
-
+const SubCategoryScreen = ({ route }) => {
   const { token } = useAuth();
-  const dispatch = useDispatch();
+  const { subCategory, PreviousRoute, category } = route.params;
+  const navigation = useNavigation();
+
   const [refreshing, setRefreshing] = useState(false);
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [group, setGroup] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [sortOption, setSortOption] = useState('AtoZ');
+  const [sortOption, setSortOption] = useState("AtoZ");
 
   const fetchItemsData = async () => {
     setLoading(true);
     try {
       const data = await fetchItems();
       setItems(data);
-      setFilteredItems(data.data);
-      const groups = data.data.map(item => item.group);
-      const uniqueGroups = [...new Set(groups)];
-      setGroup(uniqueGroups);
+
+      // Filter items by subCategory if available
+      if (subCategory) {
+        const filtered = data.data.filter(
+          (item) => item.subGroup2 === subCategory
+        );
+        setFilteredItems(filtered);
+      } else {
+        setFilteredItems(data.data);
+      }
+
       setError(null);
     } catch (err) {
-      setError('Failed to fetch items');
+      setError("Failed to fetch items");
     } finally {
       setLoading(false);
     }
@@ -69,17 +81,18 @@ const ShopScreen = () => {
     setRefreshing(false);
   }, []);
 
-
   const handleSearch = (query) => {
     setSearchQuery(query);
-    let filtered = items?.data;
+    let filtered = items.data;
 
     if (query.trim() !== "") {
-      filtered = items?.data?.filter(
+      filtered = items.data.filter(
         (item) =>
           item.itemName.toLowerCase().includes(query.toLowerCase()) ||
-          (item.subGroup1 && item.subGroup1.toLowerCase().includes(query.toLowerCase())) ||
-          (item.subGroup2 && item.subGroup2.toLowerCase().includes(query.toLowerCase()))
+          (item.subGroup1 &&
+            item.subGroup1.toLowerCase().includes(query.toLowerCase())) ||
+          (item.subGroup2 &&
+            item.subGroup2.toLowerCase().includes(query.toLowerCase()))
       );
     }
 
@@ -87,25 +100,22 @@ const ShopScreen = () => {
     setCurrentPage(1);
   };
 
-  useEffect(() => {
-    if (items.length > 0 && searchQueryData) {
-      setSearchQuery(searchQueryData);
-      handleSearch(searchQueryData);
-    }
-  }, [items, searchQueryData]);
-
-
-
   const sortItems = useCallback(() => {
     let sortedItems = [...filteredItems];
-    if (sortOption === 'AtoZ') {
+    if (sortOption === "AtoZ") {
       sortedItems.sort((a, b) => a.itemName.localeCompare(b.itemName));
-    } else if (sortOption === 'newest') {
-      sortedItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (sortOption === 'priceDesc') {
-      sortedItems.sort((a, b) => parseFloat(b.sellingPrice) - parseFloat(a.sellingPrice));
-    } else if (sortOption === 'priceAsc') {
-      sortedItems.sort((a, b) => parseFloat(a.sellingPrice) - parseFloat(b.sellingPrice));
+    } else if (sortOption === "newest") {
+      sortedItems.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+    } else if (sortOption === "priceDesc") {
+      sortedItems.sort(
+        (a, b) => parseFloat(b.sellingPrice) - parseFloat(a.sellingPrice)
+      );
+    } else if (sortOption === "priceAsc") {
+      sortedItems.sort(
+        (a, b) => parseFloat(a.sellingPrice) - parseFloat(b.sellingPrice)
+      );
     }
     return sortedItems;
   }, [filteredItems, sortOption]);
@@ -179,7 +189,28 @@ const ShopScreen = () => {
     return pageNumbers;
   };
 
-  const navigation = useNavigation();
+  
+  const handleProductInfo = async (item) => {
+    navigation.navigate('Shop', {
+      screen: 'Info',
+      params: {
+        id: item.id,
+        subCategory: item.subGroup2,
+        category: item.subGroup1,
+        PreviousRoute: 'SubCategoryScreen',
+      },
+    });
+  };
+
+  const handleReturn = () => {
+    const previousRoute =
+  PreviousRoute === "CategoryScreen"
+    ? "Home"
+    : PreviousRoute === "SubCategoryScreen"
+    ? "CategoryScreen"
+    : PreviousRoute;
+      navigation.navigate(PreviousRoute, { category: category , PreviousRoute:previousRoute });
+  };
 
   if (loading) {
     return <LoadingComponent />;
@@ -187,10 +218,7 @@ const ShopScreen = () => {
 
   if (error) {
     return (
-      <ErrorComponent
-        errorMessage={error}
-        onRetry={fetchItemsData}
-      />
+      <ErrorComponent errorMessage={error} onRetry={fetchItemsData} />
     );
   }
 
@@ -207,21 +235,28 @@ const ShopScreen = () => {
             name="shopping-cart"
             size={24}
             color="#fff"
+            style={styles.cartIcon}
             onPress={() => {
               if (token) {
-                // navigation.navigate('VendorCart');
                 navigation.navigate('VendorCart', {
-                  PreviousRoute: 'ShopScreen',
+                  params: {
+                    PreviousRoute: 'SubCategoryScreen',
+                    PreviousScreen: 'Home',
+                    category: category,
+                    subCategory: subCategory,
+                  },
                 });
-
               } else {
                 navigation.navigate('CustomerCart', {
-                  PreviousRoute: 'ShopScreen',
+                  params: {
+                    PreviousRoute: 'SubCategoryScreen',
+                    PreviousScreen: 'Home',
+                    category: category,
+                    subCategory: subCategory,
+                  },
                 });
-                // navigation.navigate('CustomerCart');
               }
             }}
-            style={styles.cartIcon}
           />
         </View>
 
@@ -230,7 +265,7 @@ const ShopScreen = () => {
             <Pressable style={styles.heroPressable}>
               <Feather name="search" size={24} color="#ccc" />
               <TextInput
-                placeholder='Search...'
+                placeholder="Search..."
                 style={styles.searchInput}
                 placeholderTextColor="#aaa"
                 value={searchQuery}
@@ -239,21 +274,32 @@ const ShopScreen = () => {
             </Pressable>
           </View>
 
-          <Dropdown
-            style={styles.MainDropdownStyle}
-            data={PRODUCT_SORT_OPTIONS}
-            labelField="label"
-            valueField="value"
-            placeholder={`Sort by: ${PRODUCT_SORT_OPTIONS.find(option => option.value === sortOption)?.label || 'Select'}`}
-            value={`Sort By: ${sortOption}`}
-            onChange={(option) => {
-              setSortOption(option.value);
-              const sorted = sortItems(filteredItems);
-              setFilteredItems(sorted);
-              setCurrentPage(1);
-            }}
-            selectedTextStyle={styles.selectedText}
-          />
+          <View style={styles.filterContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                handleReturn();
+              }}>
+              <Text style={styles.backText}><Feather name="chevron-left" size={20} color="black" /> Back</Text>
+            </TouchableOpacity>
+            <Dropdown
+              style={styles.DropdownStyle}
+              data={PRODUCT_SORT_OPTIONS}
+              labelField="label"
+              valueField="value"
+              placeholder={`Sort by: ${PRODUCT_SORT_OPTIONS.find(
+                (option) => option.value === sortOption
+              )?.label || "Select"
+                }`}
+              value={`Sort By: ${sortOption}`}
+              onChange={(option) => {
+                setSortOption(option.value);
+                const sorted = sortItems(filteredItems);
+                setFilteredItems(sorted);
+                setCurrentPage(1);
+              }}
+              selectedTextStyle={styles.selectedText}
+            />
+          </View>
         </View>
 
         <Text style={styles.Verticalline} />
@@ -264,12 +310,14 @@ const ShopScreen = () => {
             currentItems.map((item) => (
               <Pressable
                 key={item.id}
-                onPress={() =>
-                  navigation.navigate("Info", {
-                    id: item.id,
-                    PreviousRoute: 'ShopScreen',
-                  })
-                }
+                onPress={() => {
+                  
+                      handleProductInfo(item);
+                  // navigation.navigate('Shop', {
+                  //   screen: 'Info',
+                  //   params: { id: item.id },
+                  // })
+                }}
                 style={{
                   marginVertical: 4,
                   width: "49%",
@@ -283,7 +331,7 @@ const ShopScreen = () => {
                     source={
                       item.productImages && item.productImages.length > 0
                         ? { uri: item.productImages[0] }
-                        : require('../../assets/images/NOIMAGE.jpg')
+                        : require("../../assets/images/NOIMAGE.jpg")
                     }
                   />
 
@@ -316,7 +364,14 @@ const ShopScreen = () => {
                 backgroundColor: "#fff",
               }}
             >
-              <Text style={{ fontSize: 18, color: "#555", fontWeight: "bold", textAlign: "center" }}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: "#555",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
                 Oops! No items found
               </Text>
             </View>
@@ -327,20 +382,29 @@ const ShopScreen = () => {
 
         {/* Pagination Controls */}
         <View style={styles.paginationControls}>
-          <TouchableOpacity onPress={goToPreviousPage} disabled={currentPage === 1}>
-            <Text style={styles.paginationArrow}><AntDesign name="left" size={18} color="#1C252E" /></Text>
+          <TouchableOpacity
+            onPress={goToPreviousPage}
+            disabled={currentPage === 1}
+          >
+            <Text style={styles.paginationArrow}>
+              <AntDesign name="left" size={18} color="#1C252E" />
+            </Text>
           </TouchableOpacity>
 
           {renderPageNumbers()}
 
-          <TouchableOpacity onPress={goToNextPage} disabled={currentPage === totalPages}>
-            <Text style={styles.paginationArrow}><AntDesign name="right" size={18} color="#1C252E" /></Text>
+          <TouchableOpacity
+            onPress={goToNextPage}
+            disabled={currentPage === totalPages}
+          >
+            <Text style={styles.paginationArrow}>
+              <AntDesign name="right" size={18} color="#1C252E" />
+            </Text>
           </TouchableOpacity>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default ShopScreen;
+export default SubCategoryScreen;

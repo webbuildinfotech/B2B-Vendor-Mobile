@@ -29,15 +29,11 @@ const CartScreen = () => {
   const quantityTimers = useRef({});
   const [updatingItem, setUpdatingItem] = useState(null);
 
-
-  // const total = cart
-  //   ?.map((item) => parseFloat(item?.product.sellingPrice) * item?.quantity)
-  //   .reduce((curr, prev) => curr + prev, 0);
   const total = cart
-  ?.map((item) =>
-    parseFloat(item?.product?.sellingPrice || 0) * (item?.quantity || 0)
-  )
-  .reduce((curr, prev) => curr + prev, 0);
+    ?.map((item) =>
+      parseFloat(item?.product?.sellingPrice || 0) * (item?.quantity || 0)
+    )
+    .reduce((curr, prev) => curr + prev, 0);
 
   const dispatch = useDispatch();
 
@@ -65,7 +61,7 @@ const CartScreen = () => {
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      console.error('Failed to fetch Cart Data:', err);
+      console.log('Failed to fetch Cart Data:', err);
     }
   };
 
@@ -84,40 +80,65 @@ const CartScreen = () => {
 
       setCart((prevCart) => prevCart.filter((item) => item?.id !== id));
     } catch (error) {
-      console.error('Error deleting item:', error);
+      console.log('Error deleting item:', error);
     }
   };
-  const handleQuantityChange = (id, quantity) => {
-    if (isNaN(quantity) || quantity < 1) return; // Prevent invalid values
+
+  const handleQuantityChange = (id, noOfPkg) => {
+    if (isNaN(noOfPkg) || noOfPkg < 1) {
+      setTimeout(() => {
+        noOfPkg = 1;
+      }, 2000);
+    }
+
+    const item = cart.find((item) => item.id === id);
+    if (!item) return;
+
+    const qt = noOfPkg * item.product.stdPkg;
+
+    if (qt > item.stockQuantity) {
+      Alert.alert(
+        "Quantity Error", 
+        `Only ${item.stockQuantity} items are available in stock.`,
+        [{ text: "OK", onPress: () => {} }]
+      );
+      noOfPkg = 1;
+    }
 
     // Update local state immediately
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item?.id === id ? { ...item, quantity } : item
-      )
-    );
+    prevCart.map((item) =>
+      item.id === id ? { ...item, noOfPkg, quantity: noOfPkg * item.product.stdPkg } : item
+    )
+  );
 
-    // Clear previous timer for the same item
     if (quantityTimers.current[id]) {
       clearTimeout(quantityTimers.current[id]);
     }
 
-    // Set a new timer for 5 seconds
     setTimeout(() => {
       setUpdatingItem(id);
     }, 2000);
     quantityTimers.current[id] = setTimeout(async () => {
       try {
-        const success = await addQuantity(id, quantity);
+        if (isNaN(noOfPkg) || noOfPkg < 1) {
+          noOfPkg = 1;
+        }
+        const parameter = {
+          id:id,
+          noOfPkg : noOfPkg,
+          quantity : noOfPkg * item.product.stdPkg
+        }
+        const success = await addQuantity(parameter);
         if (!success) {
           setUpdatingItem(null);
-          console.error("Failed to update quantity on the server.");
+          console.log("Failed to update noOfPkg on the server.");
         }
         else {
           setUpdatingItem(null);
         }
       } catch (error) {
-        console.error("Error updating quantity:", error);
+        console.log("Error updating noOfPkg:", error);
         setUpdatingItem(null);
       }
     }, 5000);
@@ -131,7 +152,7 @@ const CartScreen = () => {
   };
 
   return (
-    <ScrollView style={{ marginTop: 30, flex: 1, backgroundColor: "white" }}>
+    <ScrollView style={{ marginTop: 0, flex: 1, backgroundColor: "white" }}>
 
       <Text style={styles.CheckOutText}> Checkout </Text>
 
@@ -149,7 +170,7 @@ const CartScreen = () => {
 
 
           <Pressable style={styles.emptyLastBox}
-          onPress={handlePress} 
+            onPress={handlePress}
           >
             <Feather name="chevron-left" size={26} color="#fe0002" />
             <Text style={styles.emptyLastText}>Continue shopping</Text>
@@ -196,7 +217,7 @@ const CartScreen = () => {
           />
 
           <View style={{ marginHorizontal: 10 }}>
-            {cart.map((item, index) => (
+            {cart?.map((item, index) => (
               <View
                 style={{
                   backgroundColor: "white",
@@ -266,6 +287,9 @@ const CartScreen = () => {
                       ₹ {formatNumber(item?.product.sellingPrice)}
                     </Text>
                     <Text style={{ color: "green", marginTop: 6 }}>In Stock</Text>
+                    <Text style={{ marginTop: 6 }}>Quantity : {item?.quantity}</Text>
+                    <Text style={{ marginTop: 6 }}>SP :  {item?.product.stdPkg}</Text>
+                    <Text style={{ marginTop: 6 }}>Avilable :  {item?.stockQuantity}</Text>
                   </View>
                 </Pressable>
 
@@ -291,7 +315,7 @@ const CartScreen = () => {
 
                     <View style={styles.quantityInput}>
                       <TextInput
-                        value={String(item?.quantity || 0)}
+                        value={String(item?.noOfPkg || '')}
                         keyboardType="numeric"
                         onChangeText={(value) => handleQuantityChange(item?.id, value)}
                         editable={updatingItem !== item?.id}
@@ -333,7 +357,7 @@ const CartScreen = () => {
                         borderRadius: 5,
                         borderColor: "#fe0002",
                         borderWidth: 0.6,
-                        color:"#fe0002",
+                        color: "#fe0002",
                       },
                       updatingItem === item?.id && {
                         opacity: 0.5, // Reduce opacity when disabled
@@ -342,7 +366,8 @@ const CartScreen = () => {
 
                   >
                     <Text style={{
-                        color:"#fff",}}>Delete</Text>
+                      color: "#fff",
+                    }}>Delete</Text>
                   </Pressable>
                 </Pressable>
               </View>
@@ -364,7 +389,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     margin: 10,
     color: "#fe0002",
-    marginTop: 65,
+    // marginTop: 65,
   },
   emptyCartContainer: {
     flex: 1,

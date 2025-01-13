@@ -36,7 +36,7 @@ const GeneratePDF = ({ orderProducts, address }) => {
       await writeFile(pdfPath, pdfBytes);
       setPdfPath(pdfPath);
     } catch (error) {
-      console.error("Error generating PDF: ", error);
+      console.log("Error generating PDF: ", error);
     }
   };
 

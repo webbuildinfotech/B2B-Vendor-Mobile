@@ -3,23 +3,20 @@ import { StyleSheet } from 'react-native';
 
 // Color Constants
 const colors = {
-    // background: '#f3f3f3',
-    // background: '#ea2030',
-    // background: '#eb282d',
     background: '#fe0002',
-    // background: 'red',
     logoColor: '#007ACC',
     buttonColor: '#ff9900',
     linkColor: '#007185',
     white: '#FFFFFF',
     lightGray: '#EAEAEA',
+    lightBack: '#F6F7F8',
     darkGray: '#333',
     bgBlue: '#00CED1',
     purple: '#7F00FF',
 };
 
 const styles = StyleSheet.create({
-    // General styles
+
     container: {
         flex: 1,
         backgroundColor: colors.background,
@@ -39,7 +36,7 @@ const styles = StyleSheet.create({
     },
     Verticalline: {
         height: 1,
-        borderColor: colors.white,
+        borderColor: colors.lightBack,
         borderWidth: 1,
         marginVertical: 5,
     },
@@ -106,19 +103,22 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
 
-    // Home styles
+
 
     heroContainer: {
         flex: 1,
-        backgroundColor: colors.background,
-        marginTop: 30,
-        // paddingTop: 20,
-        // backgroundColor: colors.white,
+
+        backgroundColor: colors.white,
+        marginTop: 5,
     },
-    heroLogo: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
+    cartIcon: {
+      position: "absolute",
+      right: 15,
+      top: 10,
+      zIndex: 11,
+    },
+    mainBox: {
+        backgroundColor: colors.lightBack,
     },
     header: {
         flexDirection: 'row',
@@ -126,43 +126,54 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 15,
-        backgroundColor: colors.white, // White background
-        elevation: 3, // Android shadow
-        shadowColor: colors.white, // iOS shadow
+        backgroundColor: colors.white,
+        elevation: 3,
+        shadowColor: colors.white,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
         borderRadius: 10,
     },
     headerLogo: {
-        fontSize: 28, // Slightly larger logo
+        fontSize: 28,
         fontWeight: 'bold',
-        color: colors.logoColor, // Amazon-like blue color
+        color: colors.logoColor,
     },
     heroTopView: { backgroundColor: colors.bgBlue, padding: 10, flexDirection: 'row', alignItems: "center" },
-    // heroTopSearch: { backgroundColor: colors.white, paddingY: 10, flexDirection: 'row', alignItems: "center", border:black },
-    // heroPressable: {
-    //     flexDirection: "row", alignItems: "center", marginHorizontal: 7, gap: 10, backgroundColor: colors.white, borderRadius: 3, height: 30, flex: 1,
-    // },
 
 
     heroTopShop: {
         marginTop: 50,
         fontSize: 30,
-        fontWeight: 'bold', // Adjusted to 'bold' for proper weight
-        textAlign: 'left', // Align text to the left
+        fontWeight: 'bold',
+        textAlign: 'left',
         marginHorizontal: 10,
     },
     heroTopSearch: {
-        backgroundColor: colors.white, // White background
+        backgroundColor: colors.white,
         paddingVertical: 8,
         flexDirection: 'row',
         alignItems: 'center',
         borderColor: '#ccc',
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 50,
         marginTop: 10,
         marginHorizontal: 10,
+        width:"75%",
+        marginBottom:10,
+    },
+    
+    productTopSearch: {
+        backgroundColor: colors.white,
+        paddingVertical: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 50,
+        marginTop: 10,
+        marginHorizontal: 10,
+        marginBottom:10,
     },
     dropdownContainer: {
         width: 100,
@@ -173,17 +184,29 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         paddingRight: 10,
         height: 50,
-        borderColor: colors.white,
+        borderColor: "#000",
         borderWidth: 1,
         borderRadius: 5,
-        // marginBottom: 12,
-        // marginTop: 20,
-        width: 200,
+        minWidth: 250,
+        alignSelf: 'flex-end',
+    },
+    MainDropdownStyle: {
+        backgroundColor: colors.white,
+        paddingLeft: 10,
+        paddingRight: 10,
+        height: 50,
+        borderColor: "#000",
+        borderWidth: 1,
+        borderRadius: 5,
+        minWidth: "95%",
+        alignSelf: 'flex-end',
+        marginVertical:10,
+        marginHorizontal:10,
     },
     selectedText: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: 'black', // You can change the color
+        color: 'black',
     },
 
     heroPressable: {
@@ -197,28 +220,27 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 8,
         fontSize: 16,
-        color: '#333', // Text color
-    },
-
-    heroFilter: {
-        marginTop: 20,
-        marginBottom: 20,
-        // marginRight: 10,
-        flexDirection: 'row',
-        // justifyContent: 'flex-end', // Align items to the right
-        justifyContent: 'space-between', // Align items to the right
-        // alignItems: 'center', 
-        // paddingHorizontal: 3,
-        marginLeft: 3,
-        gap: 10,
+        color: '#333',
     },
 
     filterContainer: {
-        marginRight: 10,
+        // marginRight: 10,
+        // paddingVertical: 10,
+        
+        marginTop: 10,
+        flexDirection: 'row',
+        paddingHorizontal: 15,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 10,
+    },
+    backText:{
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 
     filterButton: {
-        marginTop:10,
+        marginTop: 10,
         flexDirection: 'row',
         paddingHorizontal: 10,
         alignItems: 'center',
@@ -234,18 +256,18 @@ const styles = StyleSheet.create({
     },
     filterText: {
         fontSize: 18,
-        color: colors.white, // Adjust color for filters
+        color: colors.white,
         fontWeight: 'bold',
     },
     sortText: {
         fontSize: 18,
-        color: colors.white, // Adjust color for sort options
+        color: colors.white,
         fontWeight: 'bold',
     },
     sortByText: {
 
         fontSize: 18,
-        color: colors.white, // Adjust color for sort options
+        color: colors.white,
         fontWeight: 'medium',
     },
 
@@ -261,21 +283,21 @@ const styles = StyleSheet.create({
     },
     category: {
         alignItems: 'center',
-        marginHorizontal: 5, // Decreased margin for better alignment
-        backgroundColor: colors.white, // White background for categories
+        marginHorizontal: 5,
+        backgroundColor: colors.white,
         borderRadius: 10,
         elevation: 5,
         shadowColor: colors.white,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
-        padding: 10, // Added padding for better touch area
-        height: 120, // Set fixed height for the category box
-        width: 100, // Set a fixed width for category items
+        padding: 10,
+        height: 120,
+        width: 100,
     },
     categoryImage: {
-        width: 80, // Adjust image size
-        height: 80, // Adjust image size
+        width: 80,
+        height: 80,
         borderRadius: 10,
         marginBottom: 5,
     },
@@ -284,12 +306,12 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold',
         color: colors.darkGray,
-        fontSize: 10, // Slightly smaller font size for better fit
+        fontSize: 10,
     },
     featuredSection: {
         marginTop: 20,
         padding: 10,
-        backgroundColor: colors.white, // White background for featured section
+        backgroundColor: colors.white,
         borderRadius: 10,
         elevation: 3,
         shadowColor: colors.white,
@@ -301,16 +323,16 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: colors.logoColor, // Consistent color with the logo
+        color: colors.logoColor,
     },
 
     heroTreanding: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-        // paddingHorizontal: 10,
+
         paddingHorizontal: 10,
-        backgroundColor: colors.white,
+        backgroundColor: colors.lightBack,
         paddingVertical: 20,
     },
 
@@ -321,27 +343,22 @@ const styles = StyleSheet.create({
 
     heroTopImage: {
         width: '90%',
-        height: 175,
-        resizeMode: "cover",
         marginLeft: 8,
         marginTop: 8,
-
-        // borderWidth: 5,
-        // borderColor: "#fff",
-        borderRadius: 12,
         padding: 10,
-        
-
+        height: 120,
+        borderRadius: 12,
+        marginBottom: 5,
     },
 
     heroProductView: {
         backgroundColor: '#fff',
         borderColor: colors.background,
-        borderWidth:1,
+        borderWidth: 1,
         borderRadius: 10,
-        // height:280,
+
     },
-    // Add Addresses Screen StyleSheet
+
     heroProductBottom: {
         flexDirection: "row",
         flexWrap: "wrap",
@@ -349,7 +366,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 6,
         marginBottom: 10,
         marginTop: 5,
-        // justifyContent: 'center',
+
         alignItems: 'center',
     },
     heroProductTitle: {
@@ -363,7 +380,7 @@ const styles = StyleSheet.create({
     heroProductColor: {
         height: 12,
         width: 12,
-        borderRadius: 7, // This will create a circle
+        borderRadius: 7,
     },
 
     paginationControls: {
@@ -379,25 +396,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 5,
-        // backgroundColor: '#f0f0f0', // Light background for page numbers
+
     },
     activePage: {
-        backgroundColor: '#1C252E', // Dark background for active page
+        backgroundColor: '#1C252E',
     },
     activePageText: {
-        color: "#fff", // Set text color for active page number
+        color: "#fff",
         fontSize: 15,
         fontWeight: "bold",
     },
     pageText: {
         fontSize: 16,
         fontWeight: "bold",
-        color: '#1C252E', // Text color for page numbers
+        color: '#1C252E',
     },
     paginationArrow: {
         fontSize: 20,
         marginHorizontal: 10,
-        color: '#1C252E', // Color for arrows
+        color: '#1C252E',
     },
 
     heading: {
@@ -408,12 +425,12 @@ const styles = StyleSheet.create({
         marginVertical: 0,
     },
     AddAddressinput: {
-        // borderWidth: 1,
+
         borderColor: "#D0D0D0",
         borderColor: "#D0D0D0",
-        // borderRadius: 5,
-        // padding: 10,
-        // marginBottom: 10,
+
+
+
         marginTop: 10,
     },
     addButton: {
@@ -425,7 +442,7 @@ const styles = StyleSheet.create({
     },
 
     addButtonDisabled: {
-        backgroundColor: "#B0BEC5", // Disabled state background
+        backgroundColor: "#B0BEC5",
     },
 
     addButtonText: {
@@ -488,12 +505,12 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         gap: 3,
 
-        // backgroundColor: "#fff",
-        // paddingHorizontal: 15,
+
+
         paddingVertical: 5,
-        // borderRadius: 5,
+
         borderColor: "#C0C0C0",
-        // borderWidth: 0.6,
+
     },
     emptyLastText: {
         fontSize: 15,

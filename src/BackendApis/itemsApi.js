@@ -1,49 +1,43 @@
-import axiosInstance from '../config/config';  // Use the axios instance from the config file
+import axiosInstance from '../config/config';
 
-// Fetch all items
 export const fetchItems = async () => {
     try {
-        const response = await axiosInstance.get('/items');  // Use axiosInstance here
+        const response = await axiosInstance.get('/items');
         return response?.data;
     } catch (error) {
-        console.error('Error fetching items:', error);
+        console.log('Error fetching items:', error);
         throw error;
     }
 };
 
-// Fetch a single item by ID
 export const fetchItemById = async (id) => {
     try {
-        const response = await axiosInstance.get(`/items/get/${id}`);  // Use axiosInstance here
+        const response = await axiosInstance.get(`/items/get/${id}`);
         return response.data;
     } catch (error) {
-        console.error(`Error fetching item with ID ${id}:`, error);
+        console.log(`Error fetching item with ID ${id}:`, error);
         throw error;
     }
 };
 
-// Fetch items filtered by category
 export const fetchFilterItems = async (category) => {
     try {
         let response;
         
-        // Fetch all items from the backend
-        response = await axiosInstance.get('/items');  // Use axiosInstance here
+        response = await axiosInstance.get('/items');
         const allItems = response?.data;
 
-        // If a category is provided, filter the items based on the category
         if (category) {
 
-            // Filter items whose group matches the provided category
             const filteredItems = allItems.data.filter(item => item.group === category);
-            return { ...allItems, data: filteredItems };  // Return the filtered items
+            return { ...allItems, data: filteredItems };
         } else {
             console.log('No category provided, returning all items');
-            return allItems;  // Return all items if no category is provided
+            return allItems;
         }
 
     } catch (error) {
-        console.error('Error fetching items:', error);
+        console.log('Error fetching items:', error);
         throw error;
     }
 };
@@ -68,7 +62,7 @@ export const fetchItemsSearch = async (query) => {
         return items;
 
     } catch (error) {
-        console.error('Error fetching search results:', error);
+        console.log('Error fetching search results:', error);
         throw error;
     }
 };

@@ -54,7 +54,7 @@ const LoginScreen = ({ navigation }) => {
         throw new Error('Invalid response data');
       }
     } catch (error) {
-      console.error('Login error:', error.message);
+      console.log('Login error:', error.message);
       Toast.show({ type: 'error', text1: 'Login Error', text2: 'Invalid Email or Phone Number.' });
     } finally {
       setLoading(false);

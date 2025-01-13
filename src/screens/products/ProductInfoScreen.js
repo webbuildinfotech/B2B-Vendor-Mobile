@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Image, ScrollView, ImageBackground, Pressable } from "react-native";
+import { StyleSheet, Text, View, Image, ScrollView, ImageBackground, Pressable, TouchableOpacity } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
-import { AirbnbRating } from 'react-native-ratings';
-import { fetchItemById } from "../../BackendApis/itemsApi"; // Ensure this is correctly importing your API function
+import { fetchItemById } from "../../BackendApis/itemsApi";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import ErrorComponent from "../../components/Error/ErrorComponent";
 import { formatNumber } from "../../utils";
-import { AntDesign, Entypo, Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { setProductDetails } from "../../../redux/productAndAddressReducer";
 import { addToCart } from "../../../redux/CartReducer";
+import LogoComponent from "../../components/Logo/LogoComponent";
+import { useAuth } from "../../components/AuthToken/AuthContext";
+import { Feather } from '@expo/vector-icons';
 
 const ProductInfoScreen = () => {
   const route = useRoute();
+  const { token } = useAuth();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { id } = route.params;
-
+  const { id, PreviousRoute, subCategory, category } = route.params;
   const [item, setItem] = useState(null);
   const [addedToCart, setAddedToCart] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -56,15 +56,49 @@ const ProductInfoScreen = () => {
     return <ErrorComponent errorMessage={error} onRetry={() => getItemDetails()} />;
   }
 
-  // Default rating to 2 if item has no rating
-  const rating = item.rating || 2
+  const handleReturn = () => {
+    const previousRoute =
+      PreviousRoute === "CategoryScreen"
+        ? "Home"
+        : PreviousRoute === "SubCategoryScreen"
+          ? "CategoryScreen"
+          : PreviousRoute;
 
-  // const handleBuyNowPress = () => {
-  //   dispatch(setProductDetails(item, 1));
-  //   navigation.navigate('CustomerCart');
-  // };
+    navigation.navigate(PreviousRoute, { category: category || '', subCategory: subCategory || '', PreviousRoute: previousRoute });
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+
+      <View >
+        <LogoComponent />
+        <Feather
+          name="shopping-cart"
+          size={24}
+          color="#fff"
+          style={styles.cartIcon}
+          onPress={() => {
+            if (token) {
+              navigation.navigate('VendorCart', {
+                params: {
+                  PreviousRoute: 'Info',
+                  id: id,
+                },
+              });
+              // navigation.navigate('VendorCart');
+            } else {
+              navigation.navigate('CustomerCart', {
+                // PreviousRoute: 'Info',
+                params: {
+                  PreviousRoute: 'Info',
+                  id: id,
+                },
+              });
+              // navigation.navigate('CustomerCart');
+            }
+          }}
+        />
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {item.productImages && item.productImages.length > 0 ? (
           item.productImages.map((imageUri, index) => (
@@ -82,98 +116,126 @@ const ProductInfoScreen = () => {
                 require('../../assets/images/NOIMAGE.jpg')
               }
             />
-            {/*
-              <Text style={styles.messageText}>No Images Available</Text>
-              */}
           </View>
         )}
       </ScrollView>
 
       <View style={styles.MainContainer}>
         <Text style={styles.separator} />
+        <TouchableOpacity
+          onPress={() => {
+            handleReturn();
+          }}>
+          <Text style={styles.backText}><Feather name="chevron-left" size={20} color="black" /> Back</Text>
+        </TouchableOpacity>
         <Text style={styles.productTitle}>{item.itemName}</Text>
-        <Text style={styles.productsubDescription}>{item.description}</Text>
         <Text style={styles.productPrice}>₹ {formatNumber(item.sellingPrice)}</Text>
+        <Text style={styles.productsubDescription}>{item.description}</Text>
 
-        <View style={styles.starContainer}>
-        {/*
-          <AirbnbRating
-            count={5}
-            defaultRating={rating}
-            size={30}
-            isDisabled={false}
-            selectedColor="#FF3030"
-            unSelectedColor="#E0E0E0"
-            showRating={false}
-            starStyle={styles.starStyle}
-          />
-        */}
+
+        {token ? ("") : (
+
+          <View style={styles.BottomButton}>
+            <Pressable
+              style={[
+                styles.cartButton,
+                addedToCart ? { backgroundColor: 'green' } : {}
+              ]}
+              onPress={() => addItemToCart(item)}
+            >
+              {addedToCart ? (
+                <View>
+                  <Text style={styles.byeNowText}>Added to Cart</Text>
+                </View>
+              ) : (
+                <Text style={styles.byeNowText}>Add to Cart</Text>
+              )}
+            </Pressable>
+            <Pressable
+              style={styles.buyNowButton}
+              onPress={() => {
+                addItemToCart(item);
+                // navigation.navigate('CustomerCart');
+                navigation.navigate('CustomerCart', {
+                  // PreviousRoute: 'Info',
+                  params: {
+                    PreviousRoute: 'Info',
+                    id: id,
+                  },
+                });
+              }}
+            >
+              <Text style={styles.byeNowText}>Buy Now</Text>
+            </Pressable>
+
+          </View>
+        )}
+
+        <Text style={styles.separator} />
+
+        <View style={styles.Classifications}>
+          <Text style={styles.heading}>Classifications</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Category</Text>
+            <Text style={styles.value}>{item.subGroup1}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>SubCategory</Text>
+            <Text style={styles.value}>{item.subGroup2}</Text>
+          </View>
         </View>
 
 
-
-        <View style={styles.BottomButton}>
-          <Pressable
-            style={[
-              styles.cartButton,
-              addedToCart ? { backgroundColor: 'green' } : {} // Apply green background if addedToCart is true
-            ]}
-            onPress={() => addItemToCart(item)}
-          >
-            {addedToCart ? (
-              <View>
-                <Text style={styles.byeNowText}>Added to Cart</Text>
-              </View>
-            ) : (
-              <Text style={styles.byeNowText}>Add to Cart</Text>
-            )}
-          </Pressable>
-          <Pressable
-            style={styles.buyNowButton}
-            onPress={() => {
-              addItemToCart(item); // Add item to cart first
-              navigation.navigate('CustomerCart'); // Then navigate to the cart
-            }}
-          >
-            <Text style={styles.byeNowText}>Buy Now</Text>
-          </Pressable>
-
+        <View style={styles.Classifications}>
+          <Text style={styles.heading}>Additional Information</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Alias</Text>
+            <Text style={styles.value}>{item.alias || "NA"}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Part Number</Text>
+            <Text style={styles.value}>{item.partNo || "NA"}</Text>
+          </View>
         </View>
 
-        {/*
-          <Text style={styles.separator} />
-          <View style={styles.BottomTextContainer}>
-            <BottomTextComponent icon={<Entypo name="plus" size={24} color="#637381" />} text="Compare" />
-            <BottomTextComponent icon={<AntDesign name="heart" size={20} color="#637381" />} text="Favorite" />
-            <BottomTextComponent icon={<Ionicons name="share-social-sharp" size={20} color="#637381" />} text="Share" />
+        <View style={styles.Classifications}>
+          <Text style={styles.heading}>Tax & Unit Details</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>GST Rate</Text>
+            <Text style={styles.value}>{item.gstRate || "NA"}</Text>
           </View>
-  
-          <View style={styles.BottomLastContainer}>
-            <BottomInfoComponent icon={<MaterialIcons name="verified" size={40} color="#FF3030" />} title="100% original" description="Chocolate bar candy canes ice cream toffee cookie halvah." />
-            <BottomInfoComponent icon={<MaterialCommunityIcons name="clock" size={40} color="#FF3030" />} title="10 days replacement" description="Marshmallow biscuit donut dragée fruitcake wafer." />
-            <BottomInfoComponent icon={<MaterialIcons name="verified-user" size={40} color="#FF3030" />} title="Year warranty" description="Cotton candy gingerbread cake I love sugar sweet." />
+          <View style={styles.row}>
+            <Text style={styles.label}>Base Unit</Text>
+            <Text style={styles.value}>{item.baseUnit || "NA"}</Text>
           </View>
-          */}
+          <View style={styles.row}>
+            <Text style={styles.label}>Alternate Unit</Text>
+            <Text style={styles.value}>{item.alternateUnit || "NA"}</Text>
+          </View>
+        </View>
+
+        <View style={styles.Classifications}>
+          <Text style={styles.heading}>Conversion & Dimensions</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Taxability</Text>
+            <Text style={styles.value}>{item.Taxable || "NA"}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Conversion</Text>
+            <Text style={styles.value}>{item.conversion || "NA"}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Denominator</Text>
+            <Text style={styles.value}>{item.denominator || "NA"}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.separator} />
 
       </View>
     </ScrollView>
   );
 };
-
-const BottomTextComponent = ({ icon, text }) => (
-  <View style={styles.BottomTextComponent}>
-    {icon}
-    <Text style={styles.BottomText}>{text}</Text>
-  </View>
-);
-
-const BottomInfoComponent = ({ icon, title, description }) => (
-  <View style={styles.BottomTextLastComponent}>
-    {icon}
-    <Text style={styles.BottomLastText}>{title}</Text>
-    <Text style={styles.BottomContentText}>{description}</Text>
-  </View>
-);
 
 export default ProductInfoScreen;
 
@@ -181,12 +243,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    marginTop: 23,
+    marginTop: 30,
   },
+
+  cartIcon: {
+    position: "absolute",
+    right: 15,
+    top: 10,
+    zIndex: 11,
+  },
+
   imageBackground: {
     width: 400,
     height: 400,
-    marginTop: 25,
+    // marginTop: 25,
     marginRight: 10,
     resizeMode: "contain",
   },
@@ -207,15 +277,13 @@ const styles = StyleSheet.create({
   },
 
   heroTopImage: {
-    width: '100%',              // Use full width of the container
-    height: 300,                // Set a height for the image (you can adjust as needed)
-    resizeMode: 'cover',        // Ensure the image covers the entire space
-    // marginHorizontal: 10,       // Add horizontal margins for better spacing
-    // marginTop: 10,              // Add some top margin
-    borderWidth: 5,             // Border width
-    borderColor: '#fff',       // White border color
-    borderRadius: 12,          // Rounded corners
-    overflow: 'hidden',         // Make sure the image doesn't overflow the rounded corners
+    width: '100%',
+    height: 300,
+    resizeMode: 'cover',
+    borderWidth: 5,
+    borderColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
 
   messageText: {
@@ -245,16 +313,10 @@ const styles = StyleSheet.create({
     color: "#1C252E",
   },
   productPrice: {
+    marginVertical: 10,
     fontSize: 22,
     fontWeight: "700",
     color: "#1C252E",
-  },
-  starContainer: {
-    marginTop: 12,
-    alignItems: 'flex-start',
-  },
-  starStyle: {
-    marginHorizontal: 3,
   },
   BottomButton: {
     marginTop: 20,
@@ -288,44 +350,38 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
   },
-  BottomTextComponent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
+  Classifications: {
+    marginVertical: 10,
   },
-  BottomText: {
-    color: "#637381",
-    fontSize: 17,
-    fontWeight: "700",
-    marginBottom: 3,
+  heading: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
   },
-  BottomTextContainer: {
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    paddingBottom: 5,
   },
-  BottomLastContainer: {
-    marginTop: 20,
-    marginBottom: 20,
-    alignItems: "center",
-    justifyContent: "space-evenly"
+  label: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '600',
   },
-  BottomTextLastComponent: {
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
+  value: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+    textAlign: 'right',
   },
-  BottomLastText: {
-    fontSize: 25,
-    fontWeight: "500",
-  },
-  BottomContentText: {
-    color: "#637381",
-    fontSize: 15,
-    marginBottom: 20,
-    textAlign: "center",
-    marginLeft: 25,
-    marginRight: 25,
+
+  backText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
   },
 });

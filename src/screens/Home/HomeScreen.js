@@ -1,10 +1,10 @@
-import { Image, View, TouchableOpacity, Text, RefreshControl, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
+import { Image, View, TouchableOpacity, Text, RefreshControl, ScrollView, ActivityIndicator, Dimensions, Pressable, TextInput } from 'react-native';
 import React, { useState, useCallback } from "react";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Carousel from 'react-native-reanimated-carousel';
-import styles from './HomeScreenCss'; // Ensure this is correctly imported
+import styles from './HomeScreenCss';
 import { useFocusEffect } from '@react-navigation/native';
-import { fetchItems } from '../../BackendApis/itemsApi'; // Make sure this API function is defined
+import { fetchItems } from '../../BackendApis/itemsApi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetSelectedGroup, setSelectedGroupR } from '../../../redux/groupReducer';
@@ -13,30 +13,26 @@ import ErrorComponent from '../../components/Error/ErrorComponent';
 import LogoComponent from '../../components/Logo/LogoComponent';
 import { fetchBanner } from '../../BackendApis/bannerApi';
 import { useAuth } from '../../components/AuthToken/AuthContext';
+import { Feather } from '@expo/vector-icons';
 
 const HomeScreen = ({ navigation }) => {
   const { token } = useAuth();
   const dispatch = useDispatch();
-  const selectedGroup = useSelector(state => state.group.selectedGroup); // Get selected group from Redux state
+  const selectedGroup = useSelector(state => state.group.selectedGroup);
 
-  // State hooks
-  const [items, setItems] = useState([]); // For storing fetched items
-  const [group, setGroup] = useState([]); // For storing unique groups
-  const [loading, setLoading] = useState(false); // For loading state
-  const [error, setError] = useState(null); // For error messages
-  const [refreshing, setRefreshing] = useState(false); // For pull-to-refresh functionality
-  const [currentIndex, setCurrentIndex] = useState(0); // For carousel index
+
+  const [items, setItems] = useState([]);
+  const [category, setCategory] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCategories, setVisibleCategories] = useState(6);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [bannerData, setBannerData] = useState([]);
 
-  const images = [
-    require('../../assets/images/Banner_1.png'),
-    require('../../assets/images/Banner_2.png'),
-    require('../../assets/images/Banner_3.png'),
-    require('../../assets/images/Banner_4.jpg'),
-  ];
-
-  // Function to fetch items
   const getItems = async () => {
+    setSearchQuery("");
     dispatch(resetSelectedGroup(''));
     setLoading(true);
     try {
@@ -45,66 +41,133 @@ const HomeScreen = ({ navigation }) => {
       setBannerData(bannerData);
       setItems(data);
 
-      // Extract unique groups with images
+
       const groupsWithImages = data.data.map(item => ({
-        group: item.group,
+        subGroup1: item.subGroup1,
         id: item.id,
         firstImage: item.productImages && item.productImages.length > 0 ? item.productImages[0] : null,
       }));
 
-      // Filter for unique groups
+
       const uniqueGroups = groupsWithImages.reduce((accumulator, current) => {
-        const x = accumulator.find(item => item.group === current.group);
+        const x = accumulator.find(item => item.subGroup1 === current.subGroup1);
         if (!x) {
           accumulator.push(current);
         }
         return accumulator;
       }, []);
 
-      setGroup(uniqueGroups);
-      setError(null); // Reset error
+      setCategory(uniqueGroups);
+      setError(null);
     } catch (err) {
-      setError('Failed to fetch items'); // Set error message
+      setError('Failed to fetch items');
     } finally {
-      setLoading(false); // Always set loading to false
+      setLoading(false);
     }
   };
 
-  // useFocusEffect to fetch items when screen is focused
+
   useFocusEffect(
     useCallback(() => {
-      getItems(); // Fetch items when the screen is focused
+      getItems();
     }, [])
   );
 
-  // Function for pull-to-refresh functionality
+  const handleShowMore = () => {
+    setVisibleCategories(category.length);
+  };
+
+  const handleShowLess = () => {
+    setVisibleCategories(6);
+  };
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await getItems(); // Fetch items again
+    await getItems();
     setRefreshing(false);
   }, []);
 
-  const displayProducts = items?.data?.slice(0, 6) || []; // Fallback for products
+  const displayProducts = items?.data?.slice(0, 6) || [];
 
-  // Function to handle category press
+
   const handleCategoryPress = async (item) => {
-    await dispatch(setSelectedGroupR(item.group)); // Set the selected group
+    // await dispatch(setSelectedGroupR(item.group));
     if (selectedGroup !== item.group) {
-      navigation.navigate('Shop'); // Redirect to Shop screen
+      // navigation.navigate('Shop');
+      navigation.navigate('CategoryScreen', { category: item.subGroup1, PreviousRoute: 'Home' });
     }
   };
 
+  const displayCategories = category
+    .sort((a, b) => a.subGroup1.localeCompare(b.subGroup1))
+    .slice(0, visibleCategories);
+  const actualVisibleCategories = Math.min(visibleCategories, category.length);
   const screenWidth = Dimensions.get("window").width;
 
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+  };
   return (
     <SafeAreaView style={styles.heroContainer}>
       {loading ? (
-        <LoadingComponent /> // Show loading component
+        <LoadingComponent />
       ) : (
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-          <View style={styles.LogoContainer}>
+          <View>
             <LogoComponent />
+            <Feather
+              name="shopping-cart"
+              size={24}
+              color="#fff"
+              style={styles.cartIcon}
+              onPress={() => {
+                if (token) {
+                  navigation.navigate('VendorCart', {
+                    PreviousRoute: 'Home',
+                    PreviousScreen: 'Home',
+                  });
+
+                } else {
+                  navigation.navigate('CustomerCart', {
+                    PreviousRoute: 'Home',
+                    PreviousScreen: 'Home',
+                  });
+                }
+              }}
+            />
           </View>
+
+
+          <View style={styles.mainBox}>
+            <View style={styles.productTopSearch}>
+              <TextInput
+                placeholder="Search products, categories..."
+                style={styles.searchInput}
+                placeholderTextColor="#aaa"
+                value={searchQuery}
+                onChangeText={handleSearch}
+              />
+              <Pressable style={styles.searchIcon}
+                onPress={() => {
+                  if (searchQuery) {
+                    navigation.navigate('Shop', {
+                      screen: 'ShopScreen',
+                      params: {
+                        searchQueryData: searchQuery,
+                      },
+                    });
+                  } else {
+                    alert('Please enter a search query');
+                  }
+                }}
+              >
+                <Feather name="search" size={24} color="#fff" />
+              </Pressable>
+            </View>
+          </View>
+
 
           <Text style={styles.Verticalline} />
 
@@ -144,52 +207,65 @@ const HomeScreen = ({ navigation }) => {
           </View>
 
 
-          <Text style={styles.Verticalline} />
-          <Text style={styles.productText}>Product Categories</Text>
-
-          {group.length > 0 ? (
-            <View style={styles.categoryListBoxContainer}>
-              {/*
-              {group.slice(0, 6).map(item => (
-               */}
-              {group.map(item => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.categoryContainer}
-                  onPress={() => {
-                    if (!token) {
-                      handleCategoryPress(item); // Only navigate if token is not present
-                    } else {
-                      console.log('Navigation prevented because token is present');
-                    }
-                  }}
-                >
-                  {/*
-                  {item.firstImage && (
-                    <Image
-                      source={{ uri: item.firstImage }}
-                      style={styles.categoryImage}
-                      resizeMode="contain"
-                    />
-                  )}
-                  */}
-                  <Image
-                    source={
-                      item.firstImage
-                        ? { uri: item.firstImage } // Use remote image if available
-                        : require('../../assets/images/NOIMAGE.jpg') // Fallback to local image
-                    }
-                    style={styles.categoryImage}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.categoryText}>{item.group}</Text>
-                </TouchableOpacity>
-              ))}
+          <View style={styles.mainCategoryBox}>
+            <Text style={styles.Verticalline} />
+            <View style={styles.productListTextContainer}>
+              <Text style={styles.productText}>Categories</Text>
             </View>
 
-          ) : (
-            <ErrorComponent errorMessage={error} onRetry={getItems} />
-          )}
+            {category.length > 0 ? (
+              <View>
+                <View style={styles.categoryListBoxContainer}>
+                  {displayCategories.map(item => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={styles.categoryContainer}
+                      onPress={() => {
+                        handleCategoryPress(item);
+                      }}
+                    >
+                      <Image
+                        source={
+                          item.firstImage
+                            ? { uri: item.firstImage }
+                            : require('../../assets/images/NOIMAGE.jpg')
+                        }
+                        style={styles.categoryImage}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.categoryText}>
+                        {item.subGroup1?.length > 9
+                          ? `${item.subGroup1.substring(0, 9)}...`
+                          : item.subGroup1}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+
+                </View>
+
+                <View style={styles.counterContainer}>
+                  <Text style={styles.counterText}>
+                    You've viewed {actualVisibleCategories} of {category.length} Product Categories
+                  </Text>
+                </View>
+
+
+                <View style={styles.buttonContainer}>
+                  {visibleCategories < category.length ? (
+                    <TouchableOpacity style={styles.showMoreButton} onPress={handleShowMore}>
+                      <Text style={styles.showMoreText}>Load More</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity style={styles.showLessButton} onPress={handleShowLess}>
+                      <Text style={styles.showLessText}>Load Less</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            ) : (
+              <ErrorComponent errorMessage={error} onRetry={getItems} />
+            )}
+          </View>
 
           <Text style={styles.Verticalline} />
 
@@ -198,20 +274,18 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.productText}>Latest Products</Text>
             </View>
 
-            <View style={styles.productTextAndIcon}>
-              <TouchableOpacity
-                onPress={() => {
-                  if (!token) {
-                    navigation.navigate('Shop'); // Navigate only if token is not present
-                  } else {
-                    console.log('Navigation to Shop prevented because token is present');
-                  }
-                }}
-              >
-                <Text style={styles.viewAllText}>View All</Text>
-              </TouchableOpacity>
-              <MaterialIcons name="keyboard-double-arrow-right" size={25} color="#fe0002" />
-            </View>
+            {token ? ("") : (
+              <View style={styles.productTextAndIcon}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('Shop', { screen: 'ShopScreen' });
+                  }}
+                >
+                  <Text style={styles.viewAllText}>View All</Text>
+                </TouchableOpacity>
+                <MaterialIcons name="keyboard-double-arrow-right" size={25} color="#fe0002" />
+              </View>
+            )}
           </View>
 
           {displayProducts.length > 0 ? (
@@ -221,11 +295,13 @@ const HomeScreen = ({ navigation }) => {
                   <TouchableOpacity
                     style={styles.productContainer}
                     onPress={() => {
-                      if (!token) {
-                        navigation.navigate("Info", { id: item.id }); // Navigate only if token is not present
-                      } else {
-                        console.log('Navigation to Info prevented because token is present');
-                      }
+                      navigation.navigate('Shop', {
+                        screen: 'Info',
+                        params: {
+                          id: item.id,
+                          PreviousRoute: 'Home',
+                        },
+                      });
                     }}
                   >
                     {item.productImages && item.productImages.length > 0 ? (
@@ -235,6 +311,12 @@ const HomeScreen = ({ navigation }) => {
                     )}
 
                     <Text style={styles.productName}>{item.itemName}</Text>
+                    <Text style={styles.productPrice}>₹{item.sellingPrice}</Text>
+                    <Text style={styles.productDes}>
+                      {item.description?.length > 20
+                        ? `${item.description.substring(0, 20)}...`
+                        : item.description}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               ))}

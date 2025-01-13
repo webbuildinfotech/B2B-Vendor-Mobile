@@ -10,6 +10,7 @@ const colors = {
     linkColor: '#007185',
     white: '#FFFFFF',
     lightGray: '#EAEAEA',
+    grayBackground: '#807f7fc2',
     darkGray: '#333',
     bgBlue: '#00CED1',
     purple: '#7F00FF',
@@ -18,86 +19,126 @@ const colors = {
 const styles = StyleSheet.create({
 
     loadingContainer: {
-        flex: 1, // Fills the entire screen
-        justifyContent: 'center', // Centers vertically
-        alignItems: 'center', // Centers horizontally
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
 
     loadingOverlay: {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.white, // White background for the loader
-        borderRadius: 10, // Rounded corners
-        padding: 20, // Padding around the loader
-        shadowColor: colors.textColor, // Shadow for elevation effect
+        backgroundColor: colors.white,
+        borderRadius: 10,
+        padding: 20,
+        shadowColor: colors.textColor,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
-        elevation: 5, // Elevation for Android
+        elevation: 5,
     },
 
     loadingText: {
-        marginTop: 10, // Space between loader and text
-        fontSize: 18, // Text size
-        color: colors.background, // Loader text color
+        marginTop: 10,
+        fontSize: 18,
+        color: colors.background,
     },
 
     errorContainer: {
-        backgroundColor: '#ffe6e6', // Light red background
-        borderColor: '#fe0002', // Red border
-        borderWidth: 1, // Border width
-        borderRadius: 8, // Rounded corners
-        padding: 15, // Padding around the text
-        margin: 20, // Margin around the error message
-        flexDirection: 'row', // Align items in a row
-        alignItems: 'center', // Center items vertically
+        backgroundColor: '#ffe6e6',
+        borderColor: '#fe0002',
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 15,
+        margin: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 
     errorText: {
-        flex: 1, // Take available space
-        fontSize: 16, // Font size for error message
-        color: '#fe0002', // Red color for the text
-        marginLeft: 10, // Space between icon and text
+        flex: 1,
+        fontSize: 16,
+        color: '#fe0002',
+        marginLeft: 10,
     },
 
     dismissButton: {
-        backgroundColor: '#fe0002', // Red background for the button
-        borderRadius: 5, // Rounded corners
-        padding: 5, // Padding inside the button
-        marginLeft: 10, // Space between text and button
+        backgroundColor: '#fe0002',
+        borderRadius: 5,
+        padding: 5,
+        marginLeft: 10,
     },
 
     dismissButtonText: {
-        color: '#fff', // White text color for the button
-        fontSize: 14, // Font size for button text
-        fontWeight: 'bold', // Bold text for emphasis
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
     },
 
 
     heroContainer: {
         flex: 1,
-        // padding: 10,
+
         backgroundColor: colors.white,
         marginTop: 5,
     },
     Main_Logo_image: {
         width: 150,
         height: 50,
-        // alignSelf: 'center',
+
     },
-    LogoContainer: {
-        backgroundColor: colors.background,
-        padding: 10,
+
+    cartIcon: {
+        position: "absolute",
+        right: 15,
+        top: 10,
+        zIndex: 11,
     },
+
 
     Verticalline: {
-        height: 1,
+        height: 2,
         borderColor: colors.white,
         borderWidth: 2,
-        // marginVertical: 5,
+
+    }, mainBox: {
+        backgroundColor: "#f5f5f5", // Light gray for a subtle background
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ccc",
     },
 
+    productTopSearch: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#fff",
+        borderColor: "#ddd",
+        borderWidth: 1,
+        borderRadius: 30,
+        paddingHorizontal: 10,
+        elevation: 3,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        paddingVertical: 7,
+    },
+
+    searchInput: {
+        flex: 1,
+        fontSize: 16,
+        color: "#333",
+        paddingVertical: 10,
+    },
+
+    searchIcon: {
+        backgroundColor:"red",
+        borderRadius: 25,
+        padding: 8,
+        borderLeftWidth: 1,
+        borderLeftColor: "#ddd",
+    },
 
     image: {
         width: '100%',
@@ -108,32 +149,36 @@ const styles = StyleSheet.create({
     dotsContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        // marginTop: 180, // Adjust as needed for spacing
+
     },
     dot: {
         width: 7,
         height: 7,
         borderRadius: 5,
-        backgroundColor: colors.activeDoteColor, // Inactive dot color
+        backgroundColor: colors.activeDoteColor,
         margin: 5,
         display: "none",
     },
     activeDot: {
-        backgroundColor: colors.background, // Active dot color
+        backgroundColor: colors.background,
+    },
+
+    mainCategoryBox: {
+        backgroundColor: colors.grayBackground,
     },
 
     categoryListBoxContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap', // Allow wrapping to create a grid effect
-        // justifyContent: 'space-between', // Adjust space between items
-        marginBottom: 10, // Space below each row
+        flexWrap: 'wrap',
+
+        marginBottom: 10,
         marginHorizontal: 12,
     },
 
     categoryContainer: {
-        width: '31%', // Set width to approximately one-third of the container
-        marginBottom: 10, // Space between rows
-        margin: 4, // Space between rows
+        width: '30.83%',
+        marginBottom: 10,
+        margin: 4,
         padding: 10,
         backgroundColor: '#f9f9f9',
         borderRadius: 10,
@@ -151,37 +196,29 @@ const styles = StyleSheet.create({
 
     productListContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap', // Allow wrapping to create a grid effect
-        justifyContent: 'space-between', // Adjust space between items
-        marginBottom: 10, // Space below each row
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        marginBottom: 10,
     },
 
     productColumn: {
-        width: '50%', // Each product will take up nearly half the width (2 per row)
-        // marginBottom: 1, // Space between rows
-    },
-
-    productText: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: colors.textColor,
-        marginHorizontal: 16,
-        marginVertical: 10,
+        width: '50%',
 
     },
+
     row: {
-        justifyContent: 'space-between', // Ensure spacing between columns
-        paddingHorizontal: 10, // Optional: Add horizontal padding
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
     },
 
     productContainer: {
-        flex: 1 / 2, // Half width for two products in a row
+        flex: 1 / 2,
         margin: 7,
         padding: 10,
         backgroundColor: '#fff',
         borderRadius: 10,
         elevation: 3,
-        alignItems: 'center',
+        // alignItems: 'center',
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 5,
@@ -194,51 +231,60 @@ const styles = StyleSheet.create({
     },
 
     categoryImage: {
-        width: '100%', // Make image responsive
+        width: '100%',
         height: 80,
         borderRadius: 10,
         marginBottom: 5,
     },
 
     productImage: {
-        width: '100%', // Make image responsive
+        width: '100%',
         height: 120,
         borderRadius: 10,
         marginBottom: 5,
     },
 
     productPrice: {
-        fontSize: 16,
+        fontSize: 12,
         fontWeight: 'bold',
-        color: '#fe0002',
         marginTop: 5,
     },
 
-    // Additional styles for a better layout
+    productDes: {
+        fontSize: 12,
+        marginTop: 5,
+    },
+
+
     productText: {
         fontSize: 20,
-        fontWeight: '700',
+        fontWeight: '800',
         color: colors.textColor,
         marginHorizontal: 16,
         marginVertical: 10,
+        textTransform: 'uppercase',
+        borderBottomWidth: 1,
     },
 
     productListTextContainer: {
-        flexDirection: "row", // Arrange items in a row
-        alignItems: "center", // Center items vertically
-        justifyContent: "space-between", // Space items evenly to left and right
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
         paddingHorizontal: 2,
     },
 
     productTextAndIcon: {
-        flexDirection: "row", // Arrange items in a row
-        alignItems: "center", // Center items vertically
-        borderBottomWidth: 2,
-        borderBottomColor: colors.background,
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 2,
+        borderColor: colors.background,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
         borderRadius: 5,
+        marginRight: 10,
     },
     viewAllText: {
-        fontSize: 18,
+        // fontSize: 18,
         fontWeight: '700',
         color: colors.background,
 
@@ -250,7 +296,7 @@ const styles = StyleSheet.create({
         color: colors.textColor,
     },
     productName: {
-        fontSize: 15,
+        fontSize: 12,
         fontWeight: '700',
         color: colors.textColor,
     },
@@ -260,6 +306,39 @@ const styles = StyleSheet.create({
         color: colors.textColor,
     },
 
+    buttonContainer: {
+        marginTop: 10,
+        marginBottom: 10,
+        alignItems: 'center',
+    },
+    showMoreButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: colors.white,
+        borderRadius: 1,
+    },
+    showMoreText: {
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    showLessButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: colors.white,
+        borderRadius: 1,
+    },
+    showLessText: {
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+    },
+    counterContainer: {
+        alignItems: 'center',
+    },
+    counterText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#000',
+    },
 });
 
 export default styles;

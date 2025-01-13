@@ -1,15 +1,18 @@
-import { StyleSheet, Text, View,SafeAreaView } from "react-native";
-import React ,{useEffect} from "react";
+import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import React, { useEffect } from "react";
 import LottieView from "lottie-react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const OrderScreen = () => {
-    const navigation = useNavigation()
-    useEffect(() => {
-        setTimeout(() => {
-          navigation.replace("Main");
-        }, 2000);
-      }, []);
+  const navigation = useNavigation()
+  useEffect(() => {
+    setTimeout(() => {
+      // navigation.replace("Main");
+      navigation.navigate('MainTabs', {
+        screen: 'Home',
+      });
+    }, 2000);
+  }, []);
   return (
     <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
       <LottieView

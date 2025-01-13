@@ -25,6 +25,7 @@ const AddAddressScreen = () => {
 
   const [addresses, setAddresses] = useState([]);
   const [newAddress, setNewAddress] = useState({
+    name: "",
     mobile: "",
     street_address: "",
     state: "",
@@ -32,10 +33,11 @@ const AddAddressScreen = () => {
     country: "",
   });
 
-  // Update newAddress with Redux address if available
+
   useEffect(() => {
     if (address) {
       setNewAddress({
+        name: address.name || "",
         mobile: address.mobile || "",
         street_address: address.street_address || "",
         state: address.state || "",
@@ -45,8 +47,8 @@ const AddAddressScreen = () => {
     }
   }, [address]);
 
-  const [loading, setLoading] = useState(false); // Add loading state
-  const [focus, setFocus] = useState({}); // State to manage focus of inputs
+  const [loading, setLoading] = useState(false);
+  const [focus, setFocus] = useState({});
 
 
   const handleAddAddress = async () => {
@@ -64,52 +66,60 @@ const AddAddressScreen = () => {
     }
 
 
-  // Mobile number validation (you can adjust the regex based on the required format)
-  const phoneRegex = /^[0-9]{10}$/; // Example: 10 digits for mobile number
-  if (!phoneRegex.test(newAddress.mobile)) {
-    Toast.show({
-      type: "error",
-      text1: "Invalid Mobile",
-      text2: "Please enter a valid 10-digit mobile number",
-    });
-    return;
-  }
 
-  // Zip Code validation (you can adjust the regex based on the required format)
-  const zipCodeRegex = /^[0-9]{5}$/; // Example: 5 digits for zip code
-  if (!zipCodeRegex.test(newAddress.zip_code)) {
-    Toast.show({
-      type: "error",
-      text1: "Invalid Zip Code",
-      text2: "Please enter a valid zip code",
-    });
-    return;
-  }
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(newAddress.mobile)) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Mobile",
+        text2: "Please enter a valid 10-digit mobile number",
+      });
+      return;
+    }
 
-  // Country and state validations (you can make them specific or leave them as text-based)
-  if (newAddress.country.trim().length < 3) {
-    Toast.show({
-      type: "error",
-      text1: "Invalid Country",
-      text2: "Please enter a valid country name",
-    });
-    return;
-  }
+    if (newAddress.name.trim().length < 3) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Name",
+        text2: "Name should be at least 3 characters long",
+      });
+      return;
+    }
 
-  if (newAddress.state.trim().length < 2) {
-    Toast.show({
-      type: "error",
-      text1: "Invalid State",
-      text2: "Please enter a valid state",
-    });
-    return;
-  }
-  
+    const zipCodeRegex = /^[0-9]{5}$/;
+    if (!zipCodeRegex.test(newAddress.zip_code)) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Zip Code",
+        text2: "Please enter a valid zip code",
+      });
+      return;
+    }
+
+
+    if (newAddress.country.trim().length < 3) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid Country",
+        text2: "Please enter a valid country name",
+      });
+      return;
+    }
+
+    if (newAddress.state.trim().length < 2) {
+      Toast.show({
+        type: "error",
+        text1: "Invalid State",
+        text2: "Please enter a valid state",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (token) {
-        // Add address via API if token exists
+
         await addVendorAddress(newAddress);
         Toast.show({
           type: "success",
@@ -118,7 +128,7 @@ const AddAddressScreen = () => {
         });
         navigation.navigate("VendorConfirm");
       } else {
-        // Store address in Redux if token is absent
+
         dispatch(addAddress(newAddress));
         Toast.show({
           type: "success",
@@ -128,7 +138,7 @@ const AddAddressScreen = () => {
         navigation.navigate("OrderConfirm");
       }
 
-      // Reset form fields
+
       setNewAddress({
         mobile: "",
         street_address: "",
@@ -137,7 +147,7 @@ const AddAddressScreen = () => {
         country: "",
       });
     } catch (error) {
-      console.error("Error adding address:", error);
+      console.log("Error adding address:", error);
       Toast.show({
         type: "error",
         text1: "Error",
@@ -186,6 +196,24 @@ const AddAddressScreen = () => {
         {/* Add Address Form */}
         <View style={styles.form}>
 
+          <TextInput
+            label="Name"
+            value={newAddress.name}
+            onFocus={() => setFocus({ ...focus, name: true })}
+            onBlur={() => setFocus({ ...focus, name: false })}
+            onChangeText={(text) => setNewAddress({ ...newAddress, name: text })}
+            mode="outlined"
+            style={styles.AddAddressinput}
+            theme={{
+              colors: {
+                primary: focus.name ? "#0C68E9" : "#000",
+                text: focus.name ? "#0C68E9" : "#000",
+                placeholder: focus.name ? "#0C68E9" : "#000",
+                underlineColor: "transparent",
+                background: "white",
+              },
+            }}
+          />
           <TextInput
             label="Mobile"
             value={newAddress.mobile}

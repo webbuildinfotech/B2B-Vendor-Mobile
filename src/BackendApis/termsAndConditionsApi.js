@@ -5,7 +5,7 @@ export const fetchTermsAndConditions = async () => {
         const response = await axiosInstance.get('/terms-conditions');  // Use axiosInstance for the request
         return response?.data;
     } catch (error) {
-        console.error('Error fetching TermsAndConditions:', error);
+        console.log('Error fetching TermsAndConditions:', error);
         throw error;  // Re-throw the error for further handling
     }
 };

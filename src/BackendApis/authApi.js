@@ -1,11 +1,7 @@
 import axios from 'axios';
 // import { API_URL_SECONDARY, API_URL_PRIMARY } from '@env';
 
-// const BASE_URL = 'http://localhost:3000';
-const BASE_URL = 'http://192.168.1.112:3000';
-// const BASE_URL = 'https://techno-ebon.vercel.app';
-// const BASE_URL = API_URL_SECONDARY || API_URL_PRIMARY;
-// const BASE_URL = API_URL_SECONDARY;
+const BASE_URL = 'https://api.rg-techno.com';
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
@@ -17,7 +13,7 @@ export const authVerify = async (contact) => {
         const response = await axiosInstance.post('/auth/verify-otp', { contact });
         return response?.data;
     } catch (error) {
-        console.error('Error verifying OTP:', error?.response?.data || error.message);
+        console.log('Error verifying OTP:', error?.response?.data || error.message);
         throw error;
     }
 };
@@ -31,7 +27,7 @@ export const authLogin = async (contact, otp) => {
         const user = response?.data?.user; // Adjust if the user data structure is different
         return { success: true, user, token }; // Return user and token
     } catch (error) {
-        console.error('Error during login:', error?.response?.data || error.message);
+        console.log('Error during login:', error?.response?.data || error.message);
         throw error; // This will propagate the error to the calling function
     }
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { MaterialIcons } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { resetProductAndAddress } from '../../../redux/productAndAddressReducer';
 import { cleanCart } from '../../../redux/CartReducer';
 import { useNavigation } from '@react-navigation/native';
@@ -55,7 +56,7 @@ const OrderConfirmScreen = () => {
             // <GeneratePDF orderProducts={orderProducts} address={extractedData.address} />;
             dispatch(resetProductAndAddress());
             dispatch(cleanCart());
-            navigation.navigate('Order'); // Navigate to the Confirmation screen
+            navigation.navigate('Order');
         }, 2000);
     };
 
@@ -74,19 +75,16 @@ const OrderConfirmScreen = () => {
                                         <MaterialIcons name="label" size={16} color="#555" /> Name: {item.itemName}
                                     </Text>
                                     <Text style={styles.detail}>
-                                        <MaterialIcons name="info" size={16} color="#555" /> Group: {item.group}
+                                        <MaterialIcons name="info" size={16} color="#555" /> Category: {item.subGroup1}
                                     </Text>
                                     <Text style={styles.detail}>
-                                        <MaterialIcons name="info" size={16} color="#555" /> SubGroup1: {item.subGroup1}
-                                    </Text>
-                                    <Text style={styles.detail}>
-                                        <MaterialIcons name="info" size={16} color="#555" /> SubGroup2: {item.subGroup2}
-                                    </Text>
-                                    <Text style={styles.price}>
-                                        <MaterialIcons name="attach-money" size={16} color="#555" /> Price: ₹{item.sellingPrice}
+                                        <MaterialIcons name="info" size={16} color="#555" /> Sub Category: {item.subGroup2}
                                     </Text>
                                     <Text style={styles.detail}>
                                         <MaterialIcons name="monetization-on" size={16} color="#555" /> Quantity: {item.quantity}
+                                    </Text>
+                                    <Text style={styles.price}>
+                                        <MaterialIcons name="attach-money" size={16} color="#555" /> Price: ₹{item.sellingPrice}
                                     </Text>
                                 </View>
                             </View>
@@ -104,7 +102,10 @@ const OrderConfirmScreen = () => {
                 {address ? (
                     <View style={styles.detailsContainer}>
                         <Text style={styles.detail}>
-                            <MaterialIcons name="place" size={16} color="#555" /> Street Address: {address.street_address}
+                            <FontAwesome name="user" size={16} color="#555" /> Name: {address.name}
+                        </Text>
+                        <Text style={styles.detail}>
+                            <FontAwesome name="map-marker" size={16} color="#555" /> Street Address: {address.street_address}
                         </Text>
                         <Text style={styles.detail}>
                             <MaterialIcons name="public" size={16} color="#555" /> Country: {address.country}

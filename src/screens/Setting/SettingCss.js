@@ -20,14 +20,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.white,
     },
-
-    LogoContainer: {
-        backgroundColor: colors.background,
-        padding: 11,
-        flexDirection: "row", // Arrange children in a row
-        alignItems: "center", // Align items vertically in the center
-        justifyContent: "space-between", // Space between the text and cart icon
+    
+    cartIcon: {
+      position: "absolute",
+      right: 15,
+      top: 10,
+      zIndex: 11,
     },
+  
     headerContainer: {
         backgroundColor: colors.background,
         paddingVertical: 20,

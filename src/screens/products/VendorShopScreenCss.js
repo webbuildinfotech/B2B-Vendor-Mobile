@@ -19,23 +19,20 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
         marginBottom: 30,
     },
-    header: {
-        backgroundColor: colors.primary,
-        padding: 20, // Padding for spacing
-        flexDirection: "row", // Arrange children in a row
-        alignItems: "center", // Align items vertically in the center
-        justifyContent: "space-between", // Space between the text and cart icon
+    
+    cartIcon: {
+        position: "absolute",
+        right: 15,
+        top: 10,
+        zIndex: 11,
     },
 
     headerText: {
-        fontSize: 20, // Adjust font size as needed
+        fontSize: 20,
         fontWeight: "bold",
-        color: "#fff", // Adjust text color as per your theme
+        color: "#fff",
     },
 
-    cartIcon: {
-        padding: 5, // Optional padding for touchable area
-    },
     mainCard: {
         padding: 20,
     },
@@ -64,7 +61,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: colors.darkText,
         marginBottom: 8,
-        // marginTop: 16,
+        marginTop: 16,
     },
     dropdownContainer: {
         marginBottom: 16,

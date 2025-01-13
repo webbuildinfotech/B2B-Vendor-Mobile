@@ -1,54 +1,64 @@
 import { Text, View, Image, TouchableOpacity, ScrollView, Pressable, TextInput, ActivityIndicator, RefreshControl } from 'react-native';
 import React, { useState, useEffect, useCallback } from "react";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import styles from '../../assets/cssFile';
-import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-// import Feather from '@expo/vector-icons/Feather';
-import { Feather } from '@expo/vector-icons';
+import styles2 from '../Home/HomeScreenCss';
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import Feather from '@expo/vector-icons/Feather';
 import { fetchItems } from '../../BackendApis/itemsApi';
-import { Dropdown } from 'react-native-element-dropdown';
 import { formatNumber } from '../../utils';
-import { useSelector, useDispatch } from 'react-redux';
 import LoadingComponent from '../../components/Loading/LoadingComponent';
 import ErrorComponent from '../../components/Error/ErrorComponent';
 import LogoComponent from '../../components/Logo/LogoComponent';
 import { useAuth } from '../../components/AuthToken/AuthContext';
 
-const PRODUCT_SORT_OPTIONS = [
-  { value: 'AtoZ', label: 'A to Z' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High - Low' },
-  { value: 'priceAsc', label: 'Price: Low - High' },
-];
-
-const ShopScreen = () => {
-  const route = useRoute();
-  const searchQueryData = route.params?.searchQueryData || "";
-
+const CategoryScreen = ({ route }) => {
   const { token } = useAuth();
-  const dispatch = useDispatch();
+  const { category, PreviousRoute } = route.params;
   const [refreshing, setRefreshing] = useState(false);
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [group, setGroup] = useState([]);
+  const [subCatrgory, setSubCatrgory] = useState([]);
+  const [visibleCategories, setVisibleCategories] = useState(6);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [sortOption, setSortOption] = useState('AtoZ');
 
   const fetchItemsData = async () => {
     setLoading(true);
     try {
       const data = await fetchItems();
       setItems(data);
-      setFilteredItems(data.data);
+
+      if (category) {
+        const filtered = data.data.filter((item) => item.subGroup1 === category);
+
+        const groupsWithImages = filtered.map(item => ({
+          subGroup2: item.subGroup2,
+          id: item.id,
+          firstImage: item.productImages && item.productImages.length > 0 ? item.productImages[0] : null,
+        }));
+
+        const uniqueSubCategory = groupsWithImages.reduce((accumulator, current) => {
+          const x = accumulator.find(item => item.subGroup2 === current.subGroup2);
+          if (!x) {
+            accumulator.push(current);
+          }
+          return accumulator;
+        }, []);
+
+        setFilteredItems(filtered);
+        setSubCatrgory(uniqueSubCategory);
+      } else {
+        setFilteredItems(data.data);
+      }
+
+      // setFilteredItems(data.data);
       const groups = data.data.map(item => item.group);
       const uniqueGroups = [...new Set(groups)];
-      setGroup(uniqueGroups);
       setError(null);
     } catch (err) {
       setError('Failed to fetch items');
@@ -63,19 +73,22 @@ const ShopScreen = () => {
     }, [])
   );
 
+  useEffect(() => {
+    setSubCatrgory(subCatrgory);
+  }, [subCatrgory]);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchItemsData();
     setRefreshing(false);
   }, []);
 
-
   const handleSearch = (query) => {
     setSearchQuery(query);
-    let filtered = items?.data;
+    let filtered = items.data;
 
     if (query.trim() !== "") {
-      filtered = items?.data?.filter(
+      filtered = items.data.filter(
         (item) =>
           item.itemName.toLowerCase().includes(query.toLowerCase()) ||
           (item.subGroup1 && item.subGroup1.toLowerCase().includes(query.toLowerCase())) ||
@@ -87,31 +100,9 @@ const ShopScreen = () => {
     setCurrentPage(1);
   };
 
-  useEffect(() => {
-    if (items.length > 0 && searchQueryData) {
-      setSearchQuery(searchQueryData);
-      handleSearch(searchQueryData);
-    }
-  }, [items, searchQueryData]);
-
-
-
-  const sortItems = useCallback(() => {
-    let sortedItems = [...filteredItems];
-    if (sortOption === 'AtoZ') {
-      sortedItems.sort((a, b) => a.itemName.localeCompare(b.itemName));
-    } else if (sortOption === 'newest') {
-      sortedItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-    } else if (sortOption === 'priceDesc') {
-      sortedItems.sort((a, b) => parseFloat(b.sellingPrice) - parseFloat(a.sellingPrice));
-    } else if (sortOption === 'priceAsc') {
-      sortedItems.sort((a, b) => parseFloat(a.sellingPrice) - parseFloat(b.sellingPrice));
-    }
-    return sortedItems;
-  }, [filteredItems, sortOption]);
 
   const totalPages = Math?.ceil(filteredItems?.length / itemsPerPage);
-  const currentItems = sortItems(filteredItems).slice(
+  const currentItems = filteredItems.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -194,6 +185,34 @@ const ShopScreen = () => {
     );
   }
 
+  const handleCategoryPress = async (item) => {
+    navigation.navigate('SubCategoryScreen', { subCategory: item.subGroup2, category: category, PreviousRoute: 'CategoryScreen' });
+  };
+
+  const handleReturn = () => {
+    navigation.navigate('MainTabs', {
+      screen: 'Home',
+      params: {
+        screen: PreviousRoute,
+      },
+    });
+  };
+
+
+  const handleShowMore = () => {
+    setVisibleCategories(subCatrgory.length);
+  };
+
+  const handleShowLess = () => {
+    setVisibleCategories(6);
+  };
+
+
+  const displayCategories = subCatrgory
+    .sort((a, b) => a.subGroup2.localeCompare(b.subGroup2))
+    .slice(0, visibleCategories);
+  const actualVisibleCategories = Math.min(visibleCategories, subCatrgory.length);
+
   return (
     <SafeAreaView style={styles.heroContainer}>
       <ScrollView
@@ -207,55 +226,122 @@ const ShopScreen = () => {
             name="shopping-cart"
             size={24}
             color="#fff"
+            style={styles.cartIcon}
             onPress={() => {
               if (token) {
-                // navigation.navigate('VendorCart');
                 navigation.navigate('VendorCart', {
-                  PreviousRoute: 'ShopScreen',
+                  PreviousRoute: 'CategoryScreen',
+                  PreviousScreen: 'Home',
+                  category: category,
                 });
 
               } else {
                 navigation.navigate('CustomerCart', {
-                  PreviousRoute: 'ShopScreen',
+                  PreviousRoute: 'CategoryScreen',
+                  PreviousScreen: 'Home',
+                  category: category,
                 });
-                // navigation.navigate('CustomerCart');
               }
             }}
-            style={styles.cartIcon}
           />
         </View>
 
         <View style={styles.mainBox}>
-          <View style={styles.productTopSearch}>
-            <Pressable style={styles.heroPressable}>
-              <Feather name="search" size={24} color="#ccc" />
-              <TextInput
-                placeholder='Search...'
-                style={styles.searchInput}
-                placeholderTextColor="#aaa"
-                value={searchQuery}
-                onChangeText={handleSearch}
-              />
-            </Pressable>
-          </View>
 
-          <Dropdown
-            style={styles.MainDropdownStyle}
-            data={PRODUCT_SORT_OPTIONS}
-            labelField="label"
-            valueField="value"
-            placeholder={`Sort by: ${PRODUCT_SORT_OPTIONS.find(option => option.value === sortOption)?.label || 'Select'}`}
-            value={`Sort By: ${sortOption}`}
-            onChange={(option) => {
-              setSortOption(option.value);
-              const sorted = sortItems(filteredItems);
-              setFilteredItems(sorted);
-              setCurrentPage(1);
-            }}
-            selectedTextStyle={styles.selectedText}
-          />
+
+          <View style={styles.filterContainer}>
+
+            <TouchableOpacity
+              onPress={() => {
+                handleReturn();
+              }}>
+              <Text style={styles.backText}><Feather name="chevron-left" size={20} color="black" /> Back</Text>
+            </TouchableOpacity>
+
+            <View style={styles.heroTopSearch}>
+              <Pressable style={styles.heroPressable}>
+                <Feather name="search" size={24} color="#ccc" />
+                <TextInput
+                  placeholder='Search...'
+                  style={styles.searchInput}
+                  placeholderTextColor="#aaa"
+                  value={searchQuery}
+                  onChangeText={handleSearch}
+                />
+              </Pressable>
+            </View>
+
+
+          </View>
         </View>
 
+        <Text style={styles.Verticalline} />
+
+        <View style={styles2.mainCategoryBox}>
+          <Text style={styles2.Verticalline} />
+
+          <View style={styles2.productListTextContainer}>
+            <Text style={styles2.productText}>Sub Categories</Text>
+          </View>
+
+          {subCatrgory.length > 0 ? (
+            <View>
+              <View style={styles2.categoryListBoxContainer}>
+                {displayCategories.map(item => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles2.categoryContainer}
+                    onPress={() => {
+                      handleCategoryPress(item);
+                    }}
+                  >
+                    <Image
+                      source={
+                        item.firstImage
+                          ? { uri: item.firstImage }
+                          : require('../../assets/images/NOIMAGE.jpg')
+                      }
+                      style={styles2.categoryImage}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles2.categoryText}>
+                      {item.subGroup2?.length > 9
+                        ? `${item.subGroup2.substring(0, 9)}...`
+                        : item.subGroup2}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+
+              </View>
+
+              {subCatrgory.length > 6 && (
+                <>
+                  <View style={styles2.counterContainer}>
+                    <Text style={styles2.counterText}>
+                      You've viewed {actualVisibleCategories} of {subCatrgory.length} Product Categories
+                    </Text>
+                  </View>
+
+
+                  <View style={styles2.buttonContainer}>
+                    {visibleCategories < subCatrgory.length ? (
+                      <TouchableOpacity style={styles2.showMoreButton} onPress={handleShowMore}>
+                        <Text style={styles2.showMoreText}>Load More</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity style={styles2.showLessButton} onPress={handleShowLess}>
+                        <Text style={styles2.showLessText}>Load Less</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </>
+              )}
+
+            </View>
+          ) : (
+            <ErrorComponent errorMessage={error} onRetry={fetchItemsData} />
+          )}
+        </View>
         <Text style={styles.Verticalline} />
 
         {/* Product Items */}
@@ -265,9 +351,13 @@ const ShopScreen = () => {
               <Pressable
                 key={item.id}
                 onPress={() =>
-                  navigation.navigate("Info", {
-                    id: item.id,
-                    PreviousRoute: 'ShopScreen',
+                  navigation.navigate('Shop', {
+                    screen: 'Info',
+                    params: {
+                      id: item.id,
+                      PreviousRoute: 'CategoryScreen',
+                      category: item.subGroup1
+                    },
                   })
                 }
                 style={{
@@ -343,4 +433,4 @@ const ShopScreen = () => {
   );
 };
 
-export default ShopScreen;
+export default CategoryScreen;

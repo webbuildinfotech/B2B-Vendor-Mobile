@@ -1,62 +1,82 @@
 import React, { useCallback, useState } from 'react';
-import { Text, View, FlatList, Button, Alert, Pressable } from 'react-native';
+import { Text, View, Button, FlatList, Alert, Pressable } from 'react-native';
 import styles from './VendorShopScreenCss';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fetchItems } from '../../BackendApis/itemsApi';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import MultiSelect from 'react-native-multiple-select';
-// import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import { addCart } from '../../BackendApis/cartApi';
 import { Feather } from '@expo/vector-icons';
 import LogoComponent from '../../components/Logo/LogoComponent';
 import { useAuth } from '../../components/AuthToken/AuthContext';
 import { ActivityIndicator } from 'react-native-paper';
+import DropDownPicker from 'react-native-dropdown-picker';
+import LoadingComponent from '../../components/Loading/LoadingComponent';
 
 const VendorShopScreen = () => {
     const { token } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [loadingComponent, setLoadingComponent] = useState(false);
 
     const navigation = useNavigation();
     const [products, setProducts] = useState([]); // All products
     const [filteredProducts, setFilteredProducts] = useState([]); // Filtered products to display
 
-    const [groups, setGroups] = useState([]);
     const [subGroups1, setSubGroups1] = useState([]);
     const [subGroups2, setSubGroups2] = useState([]);
 
     const [filteredSubGroups1, setFilteredSubGroups1] = useState([]);
     const [filteredSubGroups2, setFilteredSubGroups2] = useState([]);
 
-    const [selectedGroups, setSelectedGroups] = useState([]);
     const [selectedSubGroup1, setSelectedSubGroup1] = useState([]);
     const [selectedSubGroup2, setSelectedSubGroup2] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState([]);
 
+
+    const [open, setOpen] = useState(false);
+    const [open2, setOpen2] = useState(false);
+    const [open3, setOpen3] = useState(false);
+
     const fetchItemsData = async () => {
         try {
-            const data = await fetchItems(); // API call
+
+            setLoadingComponent(true);
+            const data = await fetchItems();
 
             // Set products
             setProducts(data.data);
             setFilteredProducts(data.data); // Initially, show all products
 
-            // Extract unique values for dropdowns
-            const allGroups = [...new Set(data.data.map(item => item.group))];
-            const allSubGroups1 = data.data.map(item => ({
-                group: item.group,
-                subGroup1: item.subGroup1,
-            }));
-            const allSubGroups2 = data.data.map(item => ({
-                subGroup1: item.subGroup1,
-                subGroup2: item.subGroup2,
-            }));
+            const uniqueSubGroups1 = Array.from(
+                new Map(
+                    data.data.map(item => [
+                        item.subGroup1,
+                        {
+                            id: item.subGroup1,
+                            group: item.group,
+                            subGroup1: item.subGroup1,
+                            label: item.subGroup1,
+                            value: item.subGroup1
+                        }
+                    ])
+                ).values()
+            )
+                .sort((a, b) => a.subGroup1.localeCompare(b.subGroup1));
+
+            const uniqueSubGroups2 = Array.from(
+                new Map(
+                    data.data.map(item => [item.subGroup2, { id: item.subGroup2, subGroup1: item.subGroup1, subGroup2: item.subGroup2, label: item.subGroup2, value: item.subGroup2 }])
+                ).values()
+            );
 
             // Set dropdown data
-            setGroups(allGroups.map(group => ({ id: group, name: group })));
-            setSubGroups1(allSubGroups1);
-            setSubGroups2(allSubGroups2);
+            setSubGroups1(uniqueSubGroups1);
+            setSubGroups2(uniqueSubGroups2);
+
+            setLoadingComponent(false);
         } catch (err) {
-            console.error('Error fetching items:', err);
+            setLoadingComponent(false);
+            console.log('Error fetching items:', err);
         }
     };
 
@@ -66,50 +86,21 @@ const VendorShopScreen = () => {
         }, [])
     );
 
-    // Filter subGroup1 when group is selected
-    const handleGroupChange = selectedGroupIds => {
-        setSelectedGroups(selectedGroupIds);
-
-        const filtered = subGroups1
-            .filter(sg1 => selectedGroupIds.includes(sg1.group))
-            .map(sg1 => ({ id: sg1.subGroup1, name: sg1.subGroup1 }));
-        setFilteredSubGroups1(filtered);
-        // const filtered = Array.from(
-        //     new Map(
-        //         subGroups1
-        //             .filter(sg1 => selectedGroupIds.includes(sg1.group))
-        //             .map(item => [item.subGroup1, { id: item.subGroup1, name: item.subGroup1 }])
-        //     ).values()
-        // );
-
-        setFilteredSubGroups1(filtered);
-        // Reset lower levels
-        setSelectedSubGroup1([]);
-        setFilteredSubGroups2([]);
-        setSelectedSubGroup2([]);
-        setSelectedProduct([]);
-
-        // Update product display
-        filterProducts(selectedGroupIds, [], []);
-    };
-
-    // Filter subGroup2 when subGroup1 is selected
+    // Filter subGroup1 when subGroup1 is selected
     const handleSubGroup1Change = selectedSubGroup1Ids => {
+        console.log("selectedSubGroup1Ids :", selectedSubGroup1Ids);
+
         setSelectedSubGroup1(selectedSubGroup1Ids);
 
         const filtered = subGroups2
-            .filter(sg2 => selectedSubGroup1Ids.includes(sg2.subGroup1))
-            .map(sg2 => ({ id: sg2.subGroup2, name: sg2.subGroup2 }));
-        setFilteredSubGroups2(filtered);
-
-        
-        // const filtered = Array.from(
-        //     new Map(
-        //         subGroups2
-        //             .filter(sg2 => selectedSubGroup1Ids.includes(sg2.subGroup1))
-        //             .map(item => [item.subGroup2, { id: item.subGroup2, name: item.subGroup2 }])
-        //     ).values()
-        // );
+            .filter(sg2 => selectedSubGroup1Ids.includes(sg2.subGroup1))  // Filter subGroups2 based on selectedSubGroup1Ids
+            .map(sg2 => ({
+                id: sg2.subGroup2,
+                name: sg2.subGroup2,
+                label: sg2.subGroup2,
+                value: sg2.subGroup2
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));  // Sorting in ascending order based on `name` (subGroup2)
 
         setFilteredSubGroups2(filtered);
 
@@ -118,22 +109,19 @@ const VendorShopScreen = () => {
         setSelectedProduct([]);
 
         // Update product display
-        filterProducts(selectedGroups, selectedSubGroup1Ids, []);
+        filterProducts(selectedSubGroup1Ids, []);
     };
 
     // Handle subGroup2 selection and update product display
     const handleSubGroup2Change = selectedSubGroup2Ids => {
         setSelectedSubGroup2(selectedSubGroup2Ids);
-        filterProducts(selectedGroups, selectedSubGroup1, selectedSubGroup2Ids);
+        filterProducts(selectedSubGroup1, selectedSubGroup2Ids);
     };
 
     // Filter products based on selections
-    const filterProducts = (groups, subGroup1, subGroup2) => {
+    const filterProducts = (subGroup1, subGroup2) => {
         let filtered = products;
 
-        if (groups.length > 0) {
-            filtered = filtered.filter(product => groups.includes(product.group));
-        }
         if (subGroup1.length > 0) {
             filtered = filtered.filter(product => subGroup1.includes(product.subGroup1));
         }
@@ -144,168 +132,146 @@ const VendorShopScreen = () => {
         setFilteredProducts(filtered);
     };
 
-    const productItems = filteredProducts.map(product => ({
-        id: product.id, // Use unique ID
-        name: product.itemName, // Display product name in the dropdown
-    }));
+    const productItems = filteredProducts
+        .map(product => ({
+            id: product.id,
+            name: product.itemName,
+            label: product.itemName,
+            value: product.id
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));  // Sorting in ascending order based on `name` (itemName)
+
 
     // Add to Cart Function
     const addToCart = async () => {
         try {
             setLoading(true);
-            // Prepare payload
             const payload = {
                 items: selectedProduct.map(productId => ({
                     productId,
-                    quantity: 100, // Default quantity (can be customized per product)
+                    quantity: 1,
                 })),
             };
 
-            // Call addCart API
             const response = await addCart(payload);
             Alert.alert('Success', 'Products added to cart successfully!');
-
             navigation.navigate("VendorCart");
+
             // Clear selected states
-            setSelectedGroups([]);
             setSelectedSubGroup1([]);
+            setFilteredSubGroups2([]);
             setSelectedSubGroup2([]);
             setSelectedProduct([]);
 
         } catch (error) {
-            console.error('Error adding to cart:', error);
+            console.log('Error adding to cart:', error);
             Alert.alert('Error', 'Failed to add products to cart.');
         } finally {
-            setLoading(false); // Set loading to false when function finishes
+            setLoading(false);
         }
     };
 
-
+    // const handleClearAll = () => {
+    //     console.log('====================================');
+    //     console.log("ddddddddd");
+    //     console.log('====================================');
+    //     setValue([])
+    // };
+    
+      if (loadingComponent) {
+        return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}><LoadingComponent /></View>;
+      }
+    
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
+            <View>
                 <LogoComponent />
                 <Feather
                     name="shopping-cart"
                     size={24}
                     color="#fff"
+                    style={styles.cartIcon}
                     onPress={() => {
                         if (token) {
-                            // If token is present, navigate to 'VendorCart'
-                            navigation.navigate('VendorCart');
+                            navigation.navigate('VendorCart', {
+                                PreviousRoute: 'SettingScreen',
+                            });
+
                         } else {
-                            // If no token, navigate to 'CustomerCart'
-                            navigation.navigate('CustomerCart');
+                            navigation.navigate('CustomerCart', {
+                                PreviousRoute: 'SettingScreen',
+                            });
                         }
                     }}
-                    style={styles.cartIcon}
                 />
             </View>
 
-            <FlatList
-                style={styles.mainCard}
-                ListHeaderComponent={
-                    <View>
-                        {/* Multi-select dropdown for Groups */}
-                        <Text style={styles.label}>Select Groups:</Text>
-                        <View style={styles.dropdownContainer}>
-                            <MultiSelect
-                                items={groups}
-                                uniqueKey="id"
-                                onSelectedItemsChange={handleGroupChange}
-                                selectedItems={selectedGroups}
-                                selectText="Pick Groups"
-                                searchInputPlaceholderText="Search Groups..."
-                                tagRemoveIconColor="#ff0000"
-                                tagBorderColor="#ccc"
-                                tagTextColor="#333"
-                                selectedItemTextColor="#007ACC"
-                                selectedItemIconColor="#007ACC"
-                                itemTextColor="#000"
-                                displayKey="name"
-                                searchInputStyle={{ color: '#000' }}
-                                submitButtonColor="#007ACC"
-                                submitButtonText="Done"
-                                styleDropdownMenuSubsection={styles.dropdown}
-                            />
-                        </View>
+            <View style={{
+                marginTop: 20,
+                paddingHorizontal: 15
+            }}>
 
-                        {/* Multi-select dropdown for SubGroup1 */}
-                        <Text style={styles.label}>Select SubGroup1:</Text>
-                        <View style={styles.dropdownContainer}>
-                            <MultiSelect
-                                items={filteredSubGroups1}
-                                uniqueKey="id"
-                                onSelectedItemsChange={handleSubGroup1Change}
-                                selectedItems={selectedSubGroup1}
-                                selectText="Pick SubGroup1"
-                                searchInputPlaceholderText="Search SubGroup1..."
-                                tagRemoveIconColor="#ff0000"
-                                tagBorderColor="#ccc"
-                                tagTextColor="#333"
-                                selectedItemTextColor="#007ACC"
-                                selectedItemIconColor="#007ACC"
-                                itemTextColor="#000"
-                                displayKey="name"
-                                searchInputStyle={{ color: '#000' }}
-                                submitButtonColor="#007ACC"
-                                submitButtonText="Done"
-                                styleDropdownMenuSubsection={styles.dropdown}
-                            />
-                        </View>
+                <Text style={styles.label}>Select Category:</Text>
+                <DropDownPicker
+                    zIndex={3000}
+                    zIndexInverse={1000}
+                    open={open}
+                    value={selectedSubGroup1}
+                    items={subGroups1}
+                    setOpen={setOpen}
+                    setValue={setSelectedSubGroup1}
+                    onChangeValue={handleSubGroup1Change}
+                    autoScroll
+                    multiple={true}
+                    mode="BADGE"
+                    badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                />
+            </View>
 
-                        {/* Multi-select dropdown for SubGroup2 */}
-                        <Text style={styles.label}>Select SubGroup2:</Text>
-                        <View style={styles.dropdownContainer}>
-                            <MultiSelect
-                                items={filteredSubGroups2}
-                                uniqueKey="id"
-                                onSelectedItemsChange={handleSubGroup2Change}
-                                selectedItems={selectedSubGroup2}
-                                selectText="Pick SubGroup2"
-                                searchInputPlaceholderText="Search SubGroup2..."
-                                tagRemoveIconColor="#ff0000"
-                                tagBorderColor="#ccc"
-                                tagTextColor="#333"
-                                selectedItemTextColor="#007ACC"
-                                selectedItemIconColor="#007ACC"
-                                itemTextColor="#000"
-                                displayKey="name"
-                                searchInputStyle={{ color: '#000' }}
-                                submitButtonColor="#007ACC"
-                                submitButtonText="Done"
-                                styleDropdownMenuSubsection={styles.dropdown}
-                            />
-                        </View>
+            <View style={{
+                paddingHorizontal: 15
+            }}>
+                <Text style={styles.label}>Select SubCategory:</Text>
+                <DropDownPicker
+                    zIndex={2000}
+                    zIndexInverse={2000}
+                    open={open2}
+                    value={selectedSubGroup2}
+                    items={filteredSubGroups2}
+                    setOpen={setOpen2}
+                    setValue={setSelectedSubGroup2}
+                    onChangeValue={handleSubGroup2Change}
+                    autoScroll
 
-                        {/* Multi-select dropdown for Products */}
-                        <Text style={styles.label}>Select Products:</Text>
-                        <View style={styles.dropdownContainer}>
-                            <MultiSelect
-                                items={productItems}
-                                uniqueKey="id"
-                                onSelectedItemsChange={selectedItems => {
-                                    setSelectedProduct(selectedItems); // Update the selected products
-                                }}
-                                selectedItems={selectedProduct} // Bind selectedProduct state
-                                selectText="Pick Products"
-                                searchInputPlaceholderText="Search Products..."
-                                tagRemoveIconColor="#ff0000"
-                                tagBorderColor="#ccc"
-                                tagTextColor="#333"
-                                selectedItemTextColor="#007ACC"
-                                selectedItemIconColor="#007ACC"
-                                itemTextColor="#000"
-                                displayKey="name"
-                                searchInputStyle={{ color: '#000' }}
-                                submitButtonColor="#007ACC"
-                                submitButtonText="Done"
-                                styleDropdownMenuSubsection={styles.dropdown}
-                            />
-                        </View>
-                    </View>
-                }
-            />
+                    multiple={true}
+                    mode="BADGE"
+                    badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                />
+
+            </View>
+
+            <View style={{
+                paddingHorizontal: 15
+            }}>
+                <Text style={styles.label}>Select Product:</Text>
+                <DropDownPicker
+                    zIndex={1000}
+                    zIndexInverse={3000}
+                    open={open3}
+                    value={selectedProduct}
+                    items={productItems}
+                    setOpen={setOpen3}
+                    setValue={setSelectedProduct}
+                    autoScroll
+
+                    multiple={true}
+                    mode="BADGE"
+                    badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                />
+
+            </View>
+
+
             <View style={styles.mainCard}>
                 {loading ? (
                     <ActivityIndicator size="large" color="#fe0002" />
@@ -313,29 +279,18 @@ const VendorShopScreen = () => {
                     <View style={[
                         styles.cartButton,
                         {
-                            backgroundColor: selectedProduct.length === 0 ? "#db3a41" : "#fe0002", // Opacity of 0.5 when no products are selected
+                            backgroundColor: selectedProduct.length === 0 ? "#db3a41" : "#fe0002",
                         }
                     ]}>
                         <Pressable
                             disabled={selectedProduct.length === 0}
-                            onPress={() => {
-                                if (selectedProduct.length > 0) {
-                                    addToCart(); // Call the `addToCart` function if products are selected
-                                } else {
-                                    Alert.alert(
-                                        "No Products Selected",
-                                        "Please select at least one product to add to the cart."
-                                    );
-                                }
-                            }}
+                            onPress={addToCart}
                         >
                             <Text style={styles.byeNowText}>Add to Cart</Text>
                         </Pressable>
                     </View>
-
                 )}
             </View>
-
         </SafeAreaView>
     );
 };

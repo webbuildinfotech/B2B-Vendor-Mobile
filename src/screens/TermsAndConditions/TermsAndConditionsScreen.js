@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Text, View, ScrollView, RefreshControl, useWindowDimensions } from 'react-native';
+import { Text, View, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import RenderHTML from 'react-native-render-html'; // Import RenderHTML
+import HTMLView from 'react-native-htmlview';
 import { useFocusEffect } from '@react-navigation/native';
 import styles from './TermsAndConditionsScreenCss';
 import { fetchTermsAndConditions } from '../../BackendApis/termsAndConditionsApi';
@@ -13,13 +13,11 @@ const TermsAndConditionsScreen = () => {
     const [termsAndConditionData, setTermsAndConditionData] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
 
-    const { width } = useWindowDimensions(); // Get screen width for HTML rendering
-
     // Function to fetch terms and conditions
     const getTermsAndConditions = async () => {
         setLoading(true);
         try {
-            const data = await fetchTermsAndConditions(); // Ensure this API returns data in the expected format
+            const data = await fetchTermsAndConditions();
             setTermsAndConditionData(data);
             setError(null);
         } catch (err) {
@@ -50,8 +48,7 @@ const TermsAndConditionsScreen = () => {
             </View>
 
             {loading ? (
-                <LoadingComponent/>
-                // <ActivityIndicator size="large" color="#fe0002" style={styles.loadingIndicator} />
+                <LoadingComponent />
             ) : (
                 <ScrollView
                     contentContainerStyle={styles.container}
@@ -62,9 +59,9 @@ const TermsAndConditionsScreen = () => {
                             <Text style={styles.errorText}>{error}</Text>
                         </View>
                     ) : termsAndConditionData ? (
-                        <RenderHTML
-                            contentWidth={width}
-                            source={{ html: termsAndConditionData.content || '<p>No Content Available</p>' }}
+                        <HTMLView
+                            value={termsAndConditionData.content || '<p>No Content Available</p>'}
+                            stylesheet={htmlStyles}
                         />
                     ) : (
                         <Text style={styles.termsText}>No Content Available</Text>
@@ -76,3 +73,30 @@ const TermsAndConditionsScreen = () => {
 };
 
 export default TermsAndConditionsScreen;
+
+const htmlStyles = {
+    p: {
+        fontSize: 16,
+        color: '#333',
+        lineHeight: 24,
+        textAlign: 'justify',
+    },
+    strong: {
+        fontWeight: 'bold',
+        color: '#000',
+    },
+    ul: {
+        marginVertical: 10,
+        paddingLeft: 20,
+    },
+    li: {
+        marginBottom: 8,
+        fontSize: 16,
+        color: '#444',
+        lineHeight: 22,
+    },
+    a: {
+        color: '#007BFF',
+        textDecorationLine: 'underline',
+    },
+};

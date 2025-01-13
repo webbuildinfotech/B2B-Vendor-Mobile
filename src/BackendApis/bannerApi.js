@@ -6,7 +6,7 @@ export const fetchBanner = async () => {
         const response = await axiosInstance.get(`/banner/all`);
         return response?.data;
     } catch (error) {
-        console.error('Error fetching Banner:', error);
+        console.log('Error fetching Banner:', error);
         throw error;
     }
 };

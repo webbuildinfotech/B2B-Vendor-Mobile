@@ -88,7 +88,7 @@ const RegisterScreen = ({ navigation }) => {
         setEmail(""); // Reset email field
       })
       .catch((error) => {
-        console.error(error);
+        console.log(error);
         Toast.show({
           type: 'error',
           text1: 'Registration Error',

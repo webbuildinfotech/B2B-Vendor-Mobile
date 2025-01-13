@@ -16,7 +16,7 @@ const useAuthToken = () => {
         setToken(tokenData);
         setUserData(Data);
       } catch (error) {
-        console.error("Error fetching authToken:", error);
+        console.log("Error fetching authToken:", error);
         setError(error);
       } finally {
         setLoading(false);

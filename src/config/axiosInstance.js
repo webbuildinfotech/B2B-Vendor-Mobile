@@ -5,10 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // Import 
 // import { API_URL_SECONDARY, API_URL_PRIMARY } from '@env';
 
 const axiosInstance = axios.create({
-  // baseURL: 'http://192.168.1.112:3000' || 'http://localhost:3000',
-  baseURL: 'http://44.223.14.188/',
-  // baseURL: 'https://techno-ebon.vercel.app',
-  // baseURL: API_URL_SECONDARY || API_URL_PRIMARY,
+  baseURL: 'https://api.rg-techno.com/',
 });
 
 // Request interceptor

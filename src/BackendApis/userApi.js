@@ -1,59 +1,65 @@
 // src/BackendApis/authApi.js
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axiosInstance from '../config/axiosInstance'; // Correct import path
+import axiosInstance from '../config/axiosInstance';
 
 
-// Create address data
 export const addVendorAddress = async (AddressData) => {
     try {
-        const response = await axiosInstance.post(`/addresses/create`, AddressData); // Use axiosInstance directly
-        return response.data; // Return the data from response
+        const response = await axiosInstance.post(`/addresses/create`, AddressData);
+        return response.data;
     } catch (error) {
-        console.error(`Error Add Address Data:`, error);
-        throw error; // Re-throw the error for further handling
+        console.log(`Error Add Address Data:`, error);
+        throw error;
     }
 };
 
-// Fetch address data
 export const fetchAddress = async () => {
     try {
-        const response = await axiosInstance.get(`/addresses`); // Use axiosInstance directly
-        return response.data; // Return the data from response
+        const response = await axiosInstance.get(`/addresses`);
+        return response.data;
     } catch (error) {
-        console.error(`Error fetching Address Data:`, error);
-        throw error; // Re-throw the error for further handling
+        console.log(`Error fetching Address Data:`, error);
+        throw error;
     }
 };
 
-// Fetch user data
 export const fetchUserData = async () => {
     try {
-        const response = await axiosInstance.get(`/users`); // Use axiosInstance directly
-        return response.data; // Return the data from response
+        const response = await axiosInstance.get(`/users`);
+        return response.data;
     } catch (error) {
-        console.error(`Error fetching User Data:`, error);
-        throw error; // Re-throw the error for further handling
+        console.log(`Error fetching User Data:`, error);
+        throw error;
     }
 };
 
-// src/BackendApis/authApi.js
+export const fetchUserDataById = async (id) => {
+    try {
+        const response = await axiosInstance.get(`/users/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(`Error fetching User Data:`, error);
+        throw error;
+    }
+};
+
 export const authLogout = async (clearContext) => {
     try {
-        // Clear AsyncStorage
+       
         await AsyncStorage.removeItem('authToken');
         await AsyncStorage.removeItem('userId');
         await AsyncStorage.removeItem('userData');
 
 
-        // Clear context state if function is provided
+       
         if (clearContext) {
             clearContext();
         }
 
         return { success: true };
     } catch (error) {
-        console.error('Error during logout:', error);
+        console.log('Error during logout:', error);
         return { success: false, error: error.message };
     }
 };

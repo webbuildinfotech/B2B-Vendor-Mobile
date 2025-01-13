@@ -1,13 +1,16 @@
-import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Image, Alert } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Pressable, TextInput, Image, Alert, TouchableOpacity } from "react-native";
 import React from "react";
 import { Feather, AntDesign } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { incrementQuantity, decrementQuantity, removeFromCart } from "../../../redux/CartReducer";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { formatNumber } from "../../utils";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 
 const CustomerCartScreen = () => {
+  const route = useRoute();
+  const { id, PreviousRoute, PreviousScreen, category, subCategory } = route?.params;
+
   const cart = useSelector((state) => state.cart.cart);
 
   const [loading, setLoading] = React.useState(false);
@@ -15,11 +18,13 @@ const CustomerCartScreen = () => {
   const navigation = useNavigation();
 
   const total = cart
-    ?.map((item) => parseFloat(item.sellingPrice) * item.quantity)
+    ?.map((item) => parseFloat(item?.sellingPrice) * item?.quantity)
     .reduce((curr, prev) => curr + prev, 0);
 
   const handlePress = () => {
-    navigation.navigate('Main', { screen: 'Home' });
+    navigation.navigate('MainTabs', {
+      screen: 'Home',
+    });
   };
 
   // Handle item quantity changes
@@ -53,8 +58,26 @@ const CustomerCartScreen = () => {
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 20 }}><LoadingComponent /></View>;
   }
 
+  const handleReturn = () => {
+    navigation.navigate('MainTabs', {
+      screen: PreviousScreen || 'Shop',
+      params: {
+        screen: PreviousRoute,
+        params: { id: id || '', category: category || '', subCategory: subCategory || '' },
+      },
+    });
+  };
+
+
+
   return (
-    <ScrollView style={{ marginTop: 30, flex: 1, backgroundColor: "white" }}>
+    <ScrollView style={{ marginTop: 0, flex: 1, backgroundColor: "white" }}>
+      <TouchableOpacity
+        onPress={() => {
+          handleReturn();
+        }}>
+        <Text style={styles.backText}><Feather name="chevron-left" size={20} color="black" /> Back</Text>
+      </TouchableOpacity>
       <Text style={styles.CheckOutText}> Checkout </Text>
 
       {cart.length === 0 ? (
@@ -78,7 +101,7 @@ const CustomerCartScreen = () => {
         <View>
           <View style={{ padding: 10, flexDirection: "row", alignItems: "center" }}>
             <Text style={{ fontSize: 18, fontWeight: "900", color: "#637381" }}>Subtotal : </Text>
-            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1C252E" }}>₹ {formatNumber(total)}</Text>
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1C252E" }}>₹ {formatNumber(total)} || NA</Text>
           </View>
 
           <Pressable
@@ -141,11 +164,11 @@ const CustomerCartScreen = () => {
                 <Pressable style={{ marginTop: 15, marginBottom: 10, flexDirection: "row", alignItems: "center", gap: 10 }}>
                   <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 7 }}>
                     {item.quantity > 1 ? (
-                      <Pressable onPress={() => decreaseQuantity(item)} style={{ backgroundColor: "#D8D8D8", borderColor: "#fe0002", borderWidth:1 , padding: 7, borderTopLeftRadius: 6, borderBottomLeftRadius: 6 }}>
+                      <Pressable onPress={() => decreaseQuantity(item)} style={{ backgroundColor: "#D8D8D8", borderColor: "#fe0002", borderWidth: 1, padding: 7, borderTopLeftRadius: 6, borderBottomLeftRadius: 6 }}>
                         <AntDesign name="minus" size={24} color="#fe0002" />
                       </Pressable>
                     ) : (
-                      <Pressable onPress={() => deleteItem(item)} style={{ backgroundColor: "#D8D8D8", borderColor: "#fe0002", borderWidth:1 , padding: 7, borderTopLeftRadius: 6, borderBottomLeftRadius: 6 }}>
+                      <Pressable onPress={() => deleteItem(item)} style={{ backgroundColor: "#D8D8D8", borderColor: "#fe0002", borderWidth: 1, padding: 7, borderTopLeftRadius: 6, borderBottomLeftRadius: 6 }}>
                         <AntDesign name="delete" size={24} color="#fe0002" />
                       </Pressable>
                     )}
@@ -156,13 +179,13 @@ const CustomerCartScreen = () => {
                       </Text>
                     </Pressable>
 
-                    <Pressable onPress={() => increaseQuantity(item)} style={{ backgroundColor: "#D8D8D8", borderColor: "#fe0002", borderWidth:1 , padding: 7, borderTopRightRadius: 6, borderBottomRightRadius: 6 }}>
+                    <Pressable onPress={() => increaseQuantity(item)} style={{ backgroundColor: "#D8D8D8", borderColor: "#fe0002", borderWidth: 1, padding: 7, borderTopRightRadius: 6, borderBottomRightRadius: 6 }}>
                       <Feather name="plus" size={24} color="#fe0002" />
                     </Pressable>
                   </View>
 
-                  <Pressable onPress={() => deleteItem(item)} style={{ backgroundColor: "#fe0002", paddingHorizontal: 8, paddingVertical: 10, borderRadius: 5, borderColor: "#fe0002", borderWidth:1 , borderWidth: 0.6 }}>
-                    <Text style={{color:"#fff"}}>Delete</Text>
+                  <Pressable onPress={() => deleteItem(item)} style={{ backgroundColor: "#fe0002", paddingHorizontal: 8, paddingVertical: 10, borderRadius: 5, borderColor: "#fe0002", borderWidth: 1, borderWidth: 0.6 }}>
+                    <Text style={{ color: "#fff" }}>Delete</Text>
                   </Pressable>
                 </Pressable>
               </View>
@@ -176,12 +199,18 @@ const CustomerCartScreen = () => {
 
 export default CustomerCartScreen;
 const styles = StyleSheet.create({
+
+  backText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 55,
+  },
   CheckOutText: {
     fontSize: 25,
     fontWeight: "600",
     margin: 10,
     color: "#fe0002",
-    marginTop: 65,
+    marginTop: 20,
   },
   emptyCartContainer: {
     flex: 1,

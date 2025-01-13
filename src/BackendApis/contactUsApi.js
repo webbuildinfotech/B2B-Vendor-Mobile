@@ -6,7 +6,7 @@ export const addContactUs = async (data) => {
         const response = await axiosInstance.post('/contact/create', data);  // Use axiosInstance to post
         return response.data;  // Return the data from response
     } catch (error) {
-        console.error('Error adding contact message:', error);
+        console.log('Error adding contact message:', error);
         throw error;  // Re-throw the error for further handling
     }
 };
@@ -18,7 +18,7 @@ export const getContactMessage = async () => {
         
         return response.data; // Return the data from response
     } catch (error) {
-        console.error(`Error fetching Cart Data:`, error);
+        console.log(`Error fetching Cart Data:`, error);
         throw error; // Re-throw the error for further handling
     }
 };
