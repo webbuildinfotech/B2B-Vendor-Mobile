@@ -161,7 +161,7 @@ function BottomTabs() {
                 name="Map"
                 component={MapScreen}
                 options={{
-                    tabBarLabel: "Dealer",
+                    tabBarLabel: "Dealers",
                     tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
                     headerShown: false,
                     tabBarIcon: ({ focused }) =>
@@ -178,7 +178,7 @@ function BottomTabs() {
                 name="Setting"
                 component={SettingStack}
                 options={{
-                    tabBarLabel: "Setting",
+                    tabBarLabel: "About",
                     tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
                     headerShown: false,
                     tabBarIcon: ({ focused }) =>

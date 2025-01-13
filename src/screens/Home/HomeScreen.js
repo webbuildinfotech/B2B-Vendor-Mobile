@@ -140,33 +140,35 @@ const HomeScreen = ({ navigation }) => {
           </View>
 
 
-          <View style={styles.mainBox}>
-            <View style={styles.productTopSearch}>
-              <TextInput
-                placeholder="Search products, categories..."
-                style={styles.searchInput}
-                placeholderTextColor="#aaa"
-                value={searchQuery}
-                onChangeText={handleSearch}
-              />
-              <Pressable style={styles.searchIcon}
-                onPress={() => {
-                  if (searchQuery) {
-                    navigation.navigate('Shop', {
-                      screen: 'ShopScreen',
-                      params: {
-                        searchQueryData: searchQuery,
-                      },
-                    });
-                  } else {
-                    alert('Please enter a search query');
-                  }
-                }}
-              >
-                <Feather name="search" size={24} color="#fff" />
-              </Pressable>
+          {token ? ('') : (
+            <View style={styles.mainBox}>
+              <View style={styles.productTopSearch}>
+                <TextInput
+                  placeholder="Search products, categories..."
+                  style={styles.searchInput}
+                  placeholderTextColor="#aaa"
+                  value={searchQuery}
+                  onChangeText={handleSearch}
+                />
+                <Pressable style={styles.searchIcon}
+                  onPress={() => {
+                    if (searchQuery) {
+                      navigation.navigate('Shop', {
+                        screen: 'ShopScreen',
+                        params: {
+                          searchQueryData: searchQuery,
+                        },
+                      });
+                    } else {
+                      alert('Please enter a search query');
+                    }
+                  }}
+                >
+                  <Feather name="search" size={24} color="#fff" />
+                </Pressable>
+              </View>
             </View>
-          </View>
+          )}
 
 
           <Text style={styles.Verticalline} />
