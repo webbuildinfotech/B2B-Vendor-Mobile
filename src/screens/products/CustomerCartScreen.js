@@ -101,7 +101,7 @@ const CustomerCartScreen = () => {
         <View>
           <View style={{ padding: 10, flexDirection: "row", alignItems: "center" }}>
             <Text style={{ fontSize: 18, fontWeight: "900", color: "#637381" }}>Subtotal : </Text>
-            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1C252E" }}>₹ {formatNumber(total)} || NA</Text>
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1C252E" }}>₹ {formatNumber(total)}</Text>
           </View>
 
           <Pressable
