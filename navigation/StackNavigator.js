@@ -33,6 +33,7 @@ import MapScreen from '../src/screens/Map/MapScreen';
 import FaqScreen from '../src/screens/Faq/FaqScreen';
 import LogoComponent from '../src/components/Logo/LogoComponent';
 import { useSelector } from 'react-redux';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -107,12 +108,18 @@ function BottomTabs() {
 
     return (
 
-        <>
+       <SafeAreaView style={{ flex: 1 }}>
             <View>
                 <LogoComponent navigation={navigate} token={token}/>
             </View>
 
-            <Tab.Navigator>
+            <Tab.Navigator
+                screenOptions={{
+                    tabBarStyle: {
+                        height: 65, // Adjust tab bar height
+                    },
+                }}
+            >
                 {/* Home Tab */}
                 <Tab.Screen
                     name="Home"
@@ -181,7 +188,7 @@ function BottomTabs() {
                     }}
                 />
             </Tab.Navigator>
-        </>
+        </SafeAreaView>
 
     );
 }

@@ -34,7 +34,7 @@ export default function LogoComponent({ navigation, token }) {
                         style={{
                             position: 'absolute',
                             top: -10,
-                            right: 40,
+                            right: 50,
                             backgroundColor: '#ffff',
                             borderRadius: 10,
                             width: 20,
@@ -53,7 +53,7 @@ export default function LogoComponent({ navigation, token }) {
                         name="user"
                         size={24}
                         color="#fff"
-                        style={{ marginLeft: 15 }}  // Adds some space between icons
+                        style={{ marginLeft: 25 }}  // Adds some space between icons
                         onPress={() => {
                             if (token) {
                                 navigation.navigate('UserProfile');

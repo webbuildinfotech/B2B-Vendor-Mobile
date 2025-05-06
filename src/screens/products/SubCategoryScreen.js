@@ -222,7 +222,7 @@ const SubCategoryScreen = ({ route }) => {
   }
 
   return (
-    <SafeAreaView style={styles.heroContainer}>
+    <View style={styles.heroContainer}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -373,7 +373,7 @@ const SubCategoryScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

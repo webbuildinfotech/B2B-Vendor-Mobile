@@ -194,7 +194,7 @@ const ShopScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.heroContainer}>
+    <View style={styles.heroContainer}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -316,7 +316,7 @@ const ShopScreen = () => {
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

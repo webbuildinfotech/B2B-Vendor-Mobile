@@ -135,7 +135,7 @@ const VendorShopScreen = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
            
 
             <FlatList
@@ -238,7 +238,7 @@ const VendorShopScreen = () => {
                     </View>
                 )}
             </View>
-        </SafeAreaView>
+        </View>
     );
 };
 

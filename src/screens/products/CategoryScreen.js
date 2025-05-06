@@ -213,7 +213,7 @@ const CategoryScreen = ({ route }) => {
   const actualVisibleCategories = Math.min(visibleCategories, subCatrgory.length);
 
   return (
-    <SafeAreaView style={styles.heroContainer}>
+    <View style={styles.heroContainer}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -404,7 +404,7 @@ const CategoryScreen = ({ route }) => {
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

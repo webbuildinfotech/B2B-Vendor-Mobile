@@ -14,7 +14,7 @@ const OrderScreen = () => {
     }, 2000);
   }, []);
   return (
-    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
+    <View style={{ backgroundColor: "white", flex: 1 }}>
       <LottieView
         source={require("../../../assets/thumbs.json")}
         // ref={animation}
@@ -52,7 +52,7 @@ const OrderScreen = () => {
         loop={false}
         speed={0.7}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

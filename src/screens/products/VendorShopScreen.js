@@ -183,7 +183,7 @@ const VendorShopScreen = () => {
       }
     
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
         
 
             <View style={{
@@ -271,7 +271,7 @@ const VendorShopScreen = () => {
                     </View>
                 )}
             </View>
-        </SafeAreaView>
+        </View>
     );
 };
 

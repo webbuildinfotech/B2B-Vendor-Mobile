@@ -7,7 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { fetchItems } from '../../BackendApis/itemsApi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetSelectedGroup } from '../../../redux/groupReducer';
+import { resetSelectedGroup, setSelectedGroupR } from '../../../redux/groupReducer';
 import LoadingComponent from '../../components/Loading/LoadingComponent';
 import ErrorComponent from '../../components/Error/ErrorComponent';
 import { fetchBanner } from '../../BackendApis/bannerApi';
@@ -107,14 +107,11 @@ const HomeScreen = ({ navigation }) => {
 
   };
   return (
-    <SafeAreaView style={styles.heroContainer}>
+    <View style={styles.heroContainer}>
       {loading ? (
         <LoadingComponent />
       ) : (
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-          
-
-
           {token ? ('') : (
             <View style={styles.mainBox}>
               <View style={styles.productTopSearch}>
@@ -303,7 +300,7 @@ const HomeScreen = ({ navigation }) => {
           )}
         </ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
