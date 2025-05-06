@@ -7,7 +7,6 @@ import LoadingComponent from "../../components/Loading/LoadingComponent";
 import ErrorComponent from "../../components/Error/ErrorComponent";
 import { formatNumber } from "../../utils";
 import { addToCart } from "../../../redux/CartReducer";
-import LogoComponent from "../../components/Logo/LogoComponent";
 import { useAuth } from "../../components/AuthToken/AuthContext";
 import { Feather } from '@expo/vector-icons';
 
@@ -70,35 +69,7 @@ const ProductInfoScreen = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
-      <View >
-        <LogoComponent />
-        <Feather
-          name="shopping-cart"
-          size={24}
-          color="#fff"
-          style={styles.cartIcon}
-          onPress={() => {
-            if (token) {
-              navigation.navigate('VendorCart', {
-                params: {
-                  PreviousRoute: 'Info',
-                  id: id,
-                },
-              });
-              // navigation.navigate('VendorCart');
-            } else {
-              navigation.navigate('CustomerCart', {
-                // PreviousRoute: 'Info',
-                params: {
-                  PreviousRoute: 'Info',
-                  id: id,
-                },
-              });
-              // navigation.navigate('CustomerCart');
-            }
-          }}
-        />
-      </View>
+    
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {item.productImages && item.productImages.length > 0 ? (
           item.productImages.map((imageUri, index) => (

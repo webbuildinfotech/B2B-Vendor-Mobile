@@ -10,7 +10,6 @@ import { fetchItems } from '../../BackendApis/itemsApi';
 import { formatNumber } from '../../utils';
 import LoadingComponent from '../../components/Loading/LoadingComponent';
 import ErrorComponent from '../../components/Error/ErrorComponent';
-import LogoComponent from '../../components/Logo/LogoComponent';
 import { useAuth } from '../../components/AuthToken/AuthContext';
 
 const CategoryScreen = ({ route }) => {
@@ -220,31 +219,7 @@ const CategoryScreen = ({ route }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View>
-          <LogoComponent />
-          <Feather
-            name="shopping-cart"
-            size={24}
-            color="#fff"
-            style={styles.cartIcon}
-            onPress={() => {
-              if (token) {
-                navigation.navigate('VendorCart', {
-                  PreviousRoute: 'CategoryScreen',
-                  PreviousScreen: 'Home',
-                  category: category,
-                });
-
-              } else {
-                navigation.navigate('CustomerCart', {
-                  PreviousRoute: 'CategoryScreen',
-                  PreviousScreen: 'Home',
-                  category: category,
-                });
-              }
-            }}
-          />
-        </View>
+    
 
         <View style={styles.mainBox}>
 

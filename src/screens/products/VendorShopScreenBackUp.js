@@ -136,22 +136,7 @@ const VendorShopScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <LogoComponent />
-                <Feather
-                    name="shopping-cart"
-                    size={24}
-                    color="#fff"
-                    onPress={() => {
-                        if (token) {
-                            navigation.navigate('VendorCart');
-                        } else {
-                            navigation.navigate('CustomerCart');
-                        }
-                    }}
-                    style={styles.cartIcon}
-                />
-            </View>
+           
 
             <FlatList
                 style={styles.mainCard}

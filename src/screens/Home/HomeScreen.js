@@ -7,10 +7,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { fetchItems } from '../../BackendApis/itemsApi';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetSelectedGroup, setSelectedGroupR } from '../../../redux/groupReducer';
+import { resetSelectedGroup } from '../../../redux/groupReducer';
 import LoadingComponent from '../../components/Loading/LoadingComponent';
 import ErrorComponent from '../../components/Error/ErrorComponent';
-import LogoComponent from '../../components/Logo/LogoComponent';
 import { fetchBanner } from '../../BackendApis/bannerApi';
 import { useAuth } from '../../components/AuthToken/AuthContext';
 import { Feather } from '@expo/vector-icons';
@@ -19,8 +18,6 @@ const HomeScreen = ({ navigation }) => {
   const { token } = useAuth();
   const dispatch = useDispatch();
   const selectedGroup = useSelector(state => state.group.selectedGroup);
-
-
   const [items, setItems] = useState([]);
   const [category, setCategory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,29 +112,7 @@ const HomeScreen = ({ navigation }) => {
         <LoadingComponent />
       ) : (
         <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-          <View>
-            <LogoComponent />
-            <Feather
-              name="shopping-cart"
-              size={24}
-              color="#fff"
-              style={styles.cartIcon}
-              onPress={() => {
-                if (token) {
-                  navigation.navigate('VendorCart', {
-                    PreviousRoute: 'Home',
-                    PreviousScreen: 'Home',
-                  });
-
-                } else {
-                  navigation.navigate('CustomerCart', {
-                    PreviousRoute: 'Home',
-                    PreviousScreen: 'Home',
-                  });
-                }
-              }}
-            />
-          </View>
+          
 
 
           {token ? ('') : (

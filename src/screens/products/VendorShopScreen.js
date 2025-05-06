@@ -184,27 +184,7 @@ const VendorShopScreen = () => {
     
     return (
         <SafeAreaView style={styles.container}>
-            <View>
-                <LogoComponent />
-                <Feather
-                    name="shopping-cart"
-                    size={24}
-                    color="#fff"
-                    style={styles.cartIcon}
-                    onPress={() => {
-                        if (token) {
-                            navigation.navigate('VendorCart', {
-                                PreviousRoute: 'SettingScreen',
-                            });
-
-                        } else {
-                            navigation.navigate('CustomerCart', {
-                                PreviousRoute: 'SettingScreen',
-                            });
-                        }
-                    }}
-                />
-            </View>
+        
 
             <View style={{
                 marginTop: 20,

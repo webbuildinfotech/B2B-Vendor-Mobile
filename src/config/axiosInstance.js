@@ -1,11 +1,12 @@
-// src/configs/axiosInstance.js
 
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-// import { API_URL_SECONDARY, API_URL_PRIMARY } from '@env';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://api.rg-techno.com/',
+  // baseURL: 'https://api.rg-techno.com/',
+  // baseURL: 'http://localhost:3000/'
+  baseURL: 'http://192.168.29.49:3000/' // Replace with your actual IP
+
 });
 
 // Request interceptor

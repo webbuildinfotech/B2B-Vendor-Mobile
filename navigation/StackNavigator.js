@@ -1,13 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Network from 'expo-network';
-// import { useSelector } from 'react-redux';
 import HomeScreen from '../src/screens/Home/HomeScreen';
-// import CartScreen from '../src/screens/products/CartScreen';
 import AddressScreen from '../src/screens/auth/AddressScreen';
 import AddAddressScreen from '../src/screens/auth/AddAddressScreen';
 import ConfirmationScreen from '../src/screens/auth/ConfirmationScreen';
@@ -18,11 +16,8 @@ import RegisterScreen from '../src/screens/auth/RegisterScreen';
 import ProductInfoScreen from '../src/screens/products/ProductInfoScreen';
 import OTPVerification from '../src/screens/auth/OTPVerification';
 import NoInternetScreen from '../src/screens/NoInternet/NoInternetScreen';
-import VendorHomeScreen from '../src/screens/Vendor/VendorHomeScreen';
-import { fetchCart } from '../src/BackendApis/cartApi';
 import ShopScreen from '../src/screens/products/ShopScreen';
 import ContactUsScreen from '../src/screens/ContactUs/ContactUsScreen';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import OrderConfirmScreen from '../src/screens/Order/OrderConfirmScreen';
 import SettingScreen from '../src/screens/Setting/SettingScreen';
 import TermsAndConditionsScreen from '../src/screens/TermsAndConditions/TermsAndConditionsScreen';
@@ -33,9 +28,11 @@ import { useAuth } from '../src/components/AuthToken/AuthContext';
 import CustomerCartScreen from '../src/screens/products/CustomerCartScreen';
 import CategoryScreen from '../src/screens/products/CategoryScreen';
 import SubCategoryScreen from '../src/screens/products/SubCategoryScreen';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import MapScreen from '../src/screens/Map/MapScreen';
 import FaqScreen from '../src/screens/Faq/FaqScreen';
+import LogoComponent from '../src/components/Logo/LogoComponent';
+import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -74,6 +71,7 @@ function HomeStack() {
 
 function AuthStack() {
     const { token } = useAuth();
+
     return (
         <Stack.Navigator>
             {/*
@@ -104,92 +102,87 @@ function AuthStack() {
 
 function BottomTabs() {
     const { token } = useAuth();
+    const navigate = useNavigation()
+    const cartItems = useSelector((state) => state.cart.cart);
 
     return (
-        <Tab.Navigator>
-            {/* Home Tab */}
-            <Tab.Screen
-                name="Home"
-                component={HomeStack}
-                options={{
-                    tabBarLabel: "Home",
-                    tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
-                    headerShown: false,
-                    tabBarIcon: ({ focused }) =>
-                        focused ? (
-                            <Ionicons name="home" size={26} color="#fe0002" />
-                        ) : (
-                            <Ionicons name="home-outline" size={26} color="#fe0002" />
-                        ),
-                }}
-            />
 
-            <Tab.Screen
-                name="Shop"
-                component={ShopStack}
-                options={{
-                    tabBarLabel: "Products",
-                    tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
-                    headerShown: false,
-                    tabBarIcon: ({ focused }) =>
-                        focused ? (
-                            <Ionicons name="storefront-sharp" size={26} color="#fe0002" />
-                        ) : (
-                            <Ionicons name="storefront-outline" size={26} color="#fe0002" />
-                        ),
-                }}
-            />
+        <>
+            <View>
+                <LogoComponent navigation={navigate} token={token}/>
+            </View>
 
-            {/* Auth Tab */}
-            <Tab.Screen
-                name="Auth"
-                component={AuthStack}
-                options={{
-                    tabBarLabel: token ? "Profile" : "Login",
-                    tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
-                    headerShown: false,
-                    tabBarIcon: ({ focused }) =>
-                        focused ? (
-                            <FontAwesome5 name="user-alt" size={26} color="#fe0002" />
-                        ) : (
-                            <FontAwesome5 name="user" size={26} color="#fe0002" />
-                        ),
-                }}
-            />
+            <Tab.Navigator>
+                {/* Home Tab */}
+                <Tab.Screen
+                    name="Home"
+                    component={HomeStack}
+                    options={{
+                        tabBarLabel: "Home",
+                        tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
+                        headerShown: false,
+                        tabBarIcon: ({ focused }) =>
+                            focused ? (
+                                <Ionicons name="home" size={26} color="#fe0002" />
+                            ) : (
+                                <Ionicons name="home-outline" size={26} color="#fe0002" />
+                            ),
+                    }}
+                />
 
-            <Tab.Screen
-                name="Map"
-                component={MapScreen}
-                options={{
-                    tabBarLabel: "Dealers",
-                    tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
-                    headerShown: false,
-                    tabBarIcon: ({ focused }) =>
-                        focused ? (
-                            <Ionicons name="location" size={26} color="#fe0002" />
-                        ) : (
-                            <Ionicons name="location-outline" size={26} color="#fe0002" />
-                        ),
-                }}
-            />
+                <Tab.Screen
+                    name="Shop"
+                    component={ShopStack}
+                    options={{
+                        tabBarLabel: "Products",
+                        tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
+                        headerShown: false,
+                        tabBarIcon: ({ focused }) =>
+                            focused ? (
+                                <Ionicons name="storefront-sharp" size={26} color="#fe0002" />
+                            ) : (
+                                <Ionicons name="storefront-outline" size={26} color="#fe0002" />
+                            ),
+                    }}
+                />
 
-            {/* Setting Tab */}
-            <Tab.Screen
-                name="Setting"
-                component={SettingStack}
-                options={{
-                    tabBarLabel: "About",
-                    tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
-                    headerShown: false,
-                    tabBarIcon: ({ focused }) =>
-                        focused ? (
-                            <Ionicons name="settings" size={26} color="#fe0002" />
-                        ) : (
-                            <Ionicons name="settings-outline" size={26} color="#fe0002" />
-                        ),
-                }}
-            />
-        </Tab.Navigator>
+                {/* Map Tab */}
+              
+                <Tab.Screen
+                    name="Map"
+                    component={MapScreen}
+                    options={{
+                        tabBarLabel: "Dealers",
+                        tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
+                        headerShown: false,
+                        tabBarIcon: ({ focused }) =>
+                            focused ? (
+                                <Ionicons name="location" size={26} color="#fe0002" />
+                            ) : (
+                                <Ionicons name="location-outline" size={26} color="#fe0002" />
+                            ),
+                    }}
+                />
+
+                {/* Setting Tab */}
+                <Tab.Screen
+                    name="Setting"
+                    component={SettingStack}
+                    options={{
+                        tabBarLabel: "About",
+                        tabBarLabelStyle: { color: "#000", fontWeight: "700", marginBottom: 7 },
+                        headerShown: false,
+                        tabBarIcon: ({ focused }) =>
+                            focused ? (
+                                <Ionicons name="settings" size={26} color="#fe0002" />
+                            ) : (
+                                <Ionicons name="settings-outline" size={26} color="#fe0002" />
+                            ),
+                    }}
+                />
+            </Tab.Navigator>
+        </>
+
     );
 }
 
@@ -214,7 +207,7 @@ function ShopStack() {
                     options={{ headerShown: false }}
                 />
             )}
-            
+
 
             {/* Shared Screens */}
             <Stack.Screen

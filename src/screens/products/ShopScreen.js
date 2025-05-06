@@ -10,10 +10,9 @@ import { Feather } from '@expo/vector-icons';
 import { fetchItems } from '../../BackendApis/itemsApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import { formatNumber } from '../../utils';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import LoadingComponent from '../../components/Loading/LoadingComponent';
 import ErrorComponent from '../../components/Error/ErrorComponent';
-import LogoComponent from '../../components/Logo/LogoComponent';
 import { useAuth } from '../../components/AuthToken/AuthContext';
 
 const PRODUCT_SORT_OPTIONS = [
@@ -201,29 +200,7 @@ const ShopScreen = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View>
-          <LogoComponent />
-          <Feather
-            name="shopping-cart"
-            size={24}
-            color="#fff"
-            onPress={() => {
-              if (token) {
-                // navigation.navigate('VendorCart');
-                navigation.navigate('VendorCart', {
-                  PreviousRoute: 'ShopScreen',
-                });
-
-              } else {
-                navigation.navigate('CustomerCart', {
-                  PreviousRoute: 'ShopScreen',
-                });
-                // navigation.navigate('CustomerCart');
-              }
-            }}
-            style={styles.cartIcon}
-          />
-        </View>
+   
 
         <View style={styles.mainBox}>
           <View style={styles.productTopSearch}>

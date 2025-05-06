@@ -20,7 +20,6 @@ import { Dropdown } from "react-native-element-dropdown";
 import { formatNumber } from "../../utils";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import ErrorComponent from "../../components/Error/ErrorComponent";
-import LogoComponent from "../../components/Logo/LogoComponent";
 import { useAuth } from "../../components/AuthToken/AuthContext";
 
 const PRODUCT_SORT_OPTIONS = [
@@ -229,36 +228,7 @@ const SubCategoryScreen = ({ route }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <View>
-          <LogoComponent />
-          <Feather
-            name="shopping-cart"
-            size={24}
-            color="#fff"
-            style={styles.cartIcon}
-            onPress={() => {
-              if (token) {
-                navigation.navigate('VendorCart', {
-                  params: {
-                    PreviousRoute: 'SubCategoryScreen',
-                    PreviousScreen: 'Home',
-                    category: category,
-                    subCategory: subCategory,
-                  },
-                });
-              } else {
-                navigation.navigate('CustomerCart', {
-                  params: {
-                    PreviousRoute: 'SubCategoryScreen',
-                    PreviousScreen: 'Home',
-                    category: category,
-                    subCategory: subCategory,
-                  },
-                });
-              }
-            }}
-          />
-        </View>
+  
 
         <View style={styles.mainBox}>
           <View style={styles.productTopSearch}>
